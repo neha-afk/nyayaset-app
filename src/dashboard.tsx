@@ -282,20 +282,7 @@ const translations: Translations = {
   }
 };
 
-const [selectedForm, setSelectedForm] = useState<LegalForm | null>(null);
-const [formTemplates, setFormTemplates] = useState<LegalForm[]>([]);
-const [showFormBuilder, setShowFormBuilder] = useState(false);
 
-const legalInfo: Record<string, { title: string; content: string }> = {
-  propertyRights: {
-    title: "Property Rights in India",
-    content: "Property rights are fundamental legal rights that protect ownership and use of land and buildings. Here are key points:\n\n• Right to Own: Every citizen has the right to acquire, hold, and dispose of property\n• Inheritance Rights: Property can be inherited according to personal laws or will\n• Protection: The Constitution protects property rights under Article 300A\n• Land Records: Always verify land titles through official records\n• Registration: Property transactions must be registered under the Registration Act, 1908\n• Disputes: Property disputes can be resolved through civil courts\n• Women's Rights: Women have equal rights to inherit and own property\n• Illegal Encroachment: You can file an FIR and civil suit against illegal occupation\n\nImportant Documents:\n- Sale Deed\n- Property Tax Receipts\n- Encumbrance Certificate\n- Land Survey Records"
-  },
-  familyRights: {
-    title: "Family Rights in India",
-    content: "Family law governs relationships between family members. Key aspects include:\n\nMarriage Rights:\n• Legal age: 21 for men, 18 for women (as per new laws)\n• Registration: Marriage registration is mandatory in many states\n• Inter-faith marriages: Protected under Special Marriage Act, 1954\n\nDivorce Rights:\n• Mutual Consent: Both parties can divorce by mutual agreement\n• Grounds: Cruelty, adultery, desertion, mental illness\n• Maintenance: Wife can claim maintenance under Section 125 CrPC\n• Child Custody: Court decides based on child's welfare\n\nInheritance Rights:\n• Hindu Succession Act: Daughters have equal rights as sons\n• Muslim Personal Law: Governed by Shariat\n• Christian and Parsi: Governed by respective succession acts\n• Will: Anyone can make a will to distribute property\n\nDomestic Violence:\n• Protection of Women from Domestic Violence Act, 2005\n• Covers physical, emotional, economic abuse\n• Right to reside in shared household"
-  }
-};
 
 const NyayaSetuDashboard = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<'English' | 'हिंदी' | 'తెలుగు'>('English');
@@ -316,6 +303,30 @@ const NyayaSetuDashboard = () => {
   // Add this state
 const [showDocScanner, setShowDocScanner] = useState(false);
 const [scannedText, setScannedText] = useState('');
+
+const [selectedForm, setSelectedForm] = useState<LegalForm | null>(null);
+const [formTemplates, setFormTemplates] = useState<LegalForm[]>([]);
+const [showFormBuilder, setShowFormBuilder] = useState(false);
+
+const legalInfo: Record<string, { title: string; content: string }> = {
+  propertyRights: {
+    title: "Property Rights in India",
+    content: "Property rights are fundamental legal rights that protect ownership and use of land and buildings. Here are key points:\n\n• Right to Own: Every citizen has the right to acquire, hold, and dispose of property\n• Inheritance Rights: Property can be inherited according to personal laws or will\n• Protection: The Constitution protects property rights under Article 300A\n• Land Records: Always verify land titles through official records\n• Registration: Property transactions must be registered under the Registration Act, 1908\n• Disputes: Property disputes can be resolved through civil courts\n• Women's Rights: Women have equal rights to inherit and own property\n• Illegal Encroachment: You can file an FIR and civil suit against illegal occupation\n\nImportant Documents:\n- Sale Deed\n- Property Tax Receipts\n- Encumbrance Certificate\n- Land Survey Records"
+  },
+  familyRights: {
+    title: "Family Rights in India",
+    content: "Family law governs relationships between family members. Key aspects include:\n\nMarriage Rights:\n• Legal age: 21 for men, 18 for women (as per new laws)\n• Registration: Marriage registration is mandatory in many states\n• Inter-faith marriages: Protected under Special Marriage Act, 1954\n\nDivorce Rights:\n• Mutual Consent: Both parties can divorce by mutual agreement\n• Grounds: Cruelty, adultery, desertion, mental illness\n• Maintenance: Wife can claim maintenance under Section 125 CrPC\n• Child Custody: Court decides based on child's welfare\n\nInheritance Rights:\n• Hindu Succession Act: Daughters have equal rights as sons\n• Muslim Personal Law: Governed by Shariat\n• Christian and Parsi: Governed by respective succession acts\n• Will: Anyone can make a will to distribute property\n\nDomestic Violence:\n• Protection of Women from Domestic Violence Act, 2005\n• Covers physical, emotional, economic abuse\n• Right to reside in shared household"
+  },
+  workerRights: {
+  title: "Worker Rights in India",
+  content: "Worker rights ensure fair treatment, safety, and proper compensation for employees. Key aspects include:\n\nWages and Working Hours:\n• Minimum Wages Act, 1948 – ensures fair pay for all workers\n• Equal pay for equal work – no gender discrimination allowed\n• Working hours: Generally 8 hours per day, 48 hours per week\n• Overtime: Must be paid double the regular rate\n\nJob Security:\n• Industrial Disputes Act, 1947 – safeguards against unfair dismissal\n• Notice or compensation required before termination\n• Right to form or join trade unions for collective bargaining\n\nHealth and Safety:\n• Factories Act, 1948 – mandates safety measures, clean environment, and first-aid facilities\n• Employees must be provided with protective gear and regular health checks\n\nSocial Security:\n• Employees’ Provident Fund (EPF) – retirement savings contribution by employer and employee\n• Employees’ State Insurance (ESI) – medical and maternity benefits\n• Maternity Benefit Act, 1961 – 26 weeks of paid leave for eligible women employees\n\nGrievance Redressal:\n• Labour courts and industrial tribunals handle worker disputes\n• Employees can approach Labour Commissioner for unresolved issues"
+},
+consumerRights: {
+  title: "Consumer Rights in India",
+  content: "Consumer rights protect individuals from unfair trade practices and ensure quality goods and services. Key aspects include:\n\nRight to Safety:\n• Protection against goods and services that are hazardous to life and health\n• Example: Electrical appliances, food, and medicines must meet safety standards\n\nRight to Information:\n• Consumers must be informed about the product’s ingredients, price, quantity, and manufacturing details\n• Misleading advertisements are punishable under the Consumer Protection Act, 2019\n\nRight to Choose:\n• Freedom to select from a variety of goods and services at fair prices\n• No seller can force you to buy a specific brand or package\n\nRight to be Heard:\n• Consumers can file complaints and expect their grievances to be addressed\n• Consumer helplines and online portals (e.g., National Consumer Helpline – 1800-11-4000)\n\nRight to Seek Redressal:\n• Consumers can approach District, State, or National Consumer Disputes Redressal Commissions\n• Compensation can be claimed for defective goods, poor services, or unfair trade practices\n\nRight to Consumer Education:\n• Awareness programs ensure consumers know their rights and responsibilities\n• Schools, NGOs, and media spread consumer education initiatives"
+}
+
+};
 
 // Add this component
 {showDocScanner && (
