@@ -311,6 +311,42 @@ const [showFormBuilder, setShowFormBuilder] = useState(false);
 
  const navigate = useNavigate();
 
+ const [showCaseTracker, setShowCaseTracker] = useState(false);
+const [activeCases, setActiveCases] = useState([
+  {
+    id: 'CASE001',
+    title: 'Property Dispute - Landlord Issue',
+    lawyer: 'Adv. Rajesh Kumar',
+    status: 'documents_submitted',
+    statusText: 'Documents Submitted',
+    progress: 60,
+    lastUpdate: '2024-01-15',
+    nextHearing: '2024-01-30',
+    timeline: [
+      { stage: 'Consultation', date: '2024-01-05', completed: true },
+      { stage: 'Documents Submitted', date: '2024-01-15', completed: true },
+      { stage: 'Case in Progress', date: '2024-01-30', completed: false },
+      { stage: 'Resolved', date: '', completed: false }
+    ]
+  },
+  {
+    id: 'CASE002', 
+    title: 'Consumer Complaint - Defective Product',
+    lawyer: 'Adv. Priya Sharma',
+    status: 'consultation',
+    statusText: 'Under Consultation',
+    progress: 25,
+    lastUpdate: '2024-01-10',
+    nextHearing: '2024-01-25',
+    timeline: [
+      { stage: 'Consultation', date: '2024-01-10', completed: true },
+      { stage: 'Documents Submitted', date: '', completed: false },
+      { stage: 'Case in Progress', date: '', completed: false },
+      { stage: 'Resolved', date: '', completed: false }
+    ]
+  }
+]);
+
 const legalInfo: Record<string, { title: string; content: string }> = {
   propertyRights: {
     title: "Property Rights in India",
@@ -327,6 +363,34 @@ const legalInfo: Record<string, { title: string; content: string }> = {
 consumerRights: {
   title: "Consumer Rights in India",
   content: "Consumer rights protect individuals from unfair trade practices and ensure quality goods and services. Key aspects include:\n\nRight to Safety:\n• Protection against goods and services that are hazardous to life and health\n• Example: Electrical appliances, food, and medicines must meet safety standards\n\nRight to Information:\n• Consumers must be informed about the product’s ingredients, price, quantity, and manufacturing details\n• Misleading advertisements are punishable under the Consumer Protection Act, 2019\n\nRight to Choose:\n• Freedom to select from a variety of goods and services at fair prices\n• No seller can force you to buy a specific brand or package\n\nRight to be Heard:\n• Consumers can file complaints and expect their grievances to be addressed\n• Consumer helplines and online portals (e.g., National Consumer Helpline – 1800-11-4000)\n\nRight to Seek Redressal:\n• Consumers can approach District, State, or National Consumer Disputes Redressal Commissions\n• Compensation can be claimed for defective goods, poor services, or unfair trade practices\n\nRight to Consumer Education:\n• Awareness programs ensure consumers know their rights and responsibilities\n• Schools, NGOs, and media spread consumer education initiatives"
+},
+studentMentalHealth: {
+  title: "Student Mental Health Rights in India",
+  content: "Student mental health rights ensure educational institutions provide proper support and accommodations. Key aspects include:\n\nRight to Counseling Services:\n• Educational institutions must provide free counseling and mental health support\n• Confidential sessions with trained professionals available\n• Example: Colleges must have student wellness centers\n\nRight to Non-Discrimination:\n• No discrimination in admissions based on mental health conditions\n• Equal opportunities for academic and extracurricular activities\n• Protection from stigma and harassment\n\nRight to Academic Accommodations:\n• Flexible attendance during mental health treatment\n• Extra time for assignments and examinations during crises\n• Option for course reduction without penalty\n\nRight to Privacy:\n• Mental health records remain strictly confidential\n• Information cannot be shared without student's consent\n• Protection from unauthorized disclosure\n\nRight to Grievance Redressal:\n• Institutions must have mental health grievance committees\n• Quick resolution of mental health-related complaints\n• Access to ombudsman for unresolved issues\n\nRight to Suicide Prevention Support:\n• 24/7 helplines and crisis intervention services\n• Decriminalization of attempted suicide\n• Rehabilitation programs instead of punishment"
+},
+tribalProperty: {
+  title: "Tribal Property & Forest Rights in India",
+  content: "Tribal property rights protect indigenous communities' land and forest resources. Key aspects include:\n\nRight to Forest Land:\n• Individual Forest Rights for up to 4 hectares of forest land\n• Community Forest Rights for traditional forest areas\n• Protection from illegal eviction and displacement\n\nRight to Consent:\n• Gram Sabha consent mandatory for any land acquisition\n• Consultation required for development projects in tribal areas\n• Veto power over projects affecting tribal habitats\n\nRight to Traditional Resources:\n• Access to minor forest produce for livelihood\n• Rights over water bodies and grazing lands\n• Protection of traditional knowledge and cultural practices\n\nRight to Legal Protection:\n• Prohibition of land transfer to non-tribals\n• Special courts for tribal land dispute resolution\n• Legal aid for tribal communities\n\nRight to Development:\n• Equitable share in project benefits and compensation\n• Protection from forced relocation\n• Rehabilitation and resettlement rights\n\nRight to Cultural Preservation:\n• Protection of sacred groves and worship sites\n• Conservation of traditional habitats\n• Recognition of customary laws"
+},
+
+digitalPrivacy: {
+  title: "Digital Privacy & Data Protection Rights in India",
+  content: "Digital privacy rights protect personal information in the digital space under DPDP Act 2023. Key aspects include:\n\nRight to Consent:\n• Organizations must obtain clear consent before collecting personal data\n• Purpose limitation - data can only be used for specified purposes\n• Right to withdraw consent at any time\n\nRight to Information:\n• Clear notice about what data is collected and how it will be used\n• Information about third parties with whom data is shared\n• Transparency about data processing activities\n\nRight to Correction & Erasure:\n• Correction of inaccurate personal data\n• Updating incomplete information\n• Right to erase data when no longer necessary\n\nRight to Grievance Redressal:\n• Data Protection Board for complaint resolution\n• Compensation for data breaches and privacy violations\n• Time-bound resolution of complaints\n\nRight to Data Security:\n• Protection against unauthorized access and data breaches\n• Mandatory security safeguards by data processors\n• Notification of data breaches to individuals\n\nRight to Nomination:\n• Nominate someone to exercise rights in case of death or incapacity\n• Succession planning for digital assets and data\n• Inheritance of digital rights"
+},
+
+victimWitnessRights: {
+  title: "Victim & Witness Rights in Gender-Based Violence Cases",
+  content: "Victim and witness rights ensure protection and support during legal proceedings. Key aspects include:\n\nRight to Protection:\n• Protection from intimidation and threats\n• In-camera proceedings to maintain privacy\n• Identity protection in media reporting\n\nRight to Support Services:\n• Free legal aid and counseling\n• Medical examination and treatment\n• Shelter and rehabilitation facilities\n\nRight to Information:\n• Information about case progress and court dates\n• Copies of FIR and charge sheet\n• Details about accused's arrest and bail status\n\nRight to Participation:\n• Representation through advocate\n• Right to be heard during bail hearings\n• Participation in settlement discussions\n\nRight to Compensation:\n• Interim compensation during trial\n• Final compensation after conviction\n• Special compensation for rehabilitation\n\nRight to Witness Protection:\n• Separate waiting areas in court\n• Video conferencing for testimony\n• Witness protection program for high-risk cases"
+},
+
+criminalTrial: {
+  title: "Criminal Trial Process & e-FIR Rights in India",
+  content: "Criminal trial rights ensure fair and timely justice delivery. Key aspects include:\n\nRight to e-FIR:\n• Online FIR registration through state police portals\n• Zero FIR at any police station regardless of jurisdiction\n• Acknowledgement receipt with unique reference number\n\nRight to Speedy Trial:\n• Time-bound investigation and trial completion\n• Maximum 90 days for filing charge sheet\n• Fast-track courts for certain categories of cases\n\nRight to Legal Aid:\n• Free legal counsel if unable to afford lawyer\n• Legal Services Authorities at district and state levels\n• Duty lawyer available at police stations and courts\n\nRight to Bail:\n• Default bail if investigation not completed in specified time\n• Anticipatory bail for apprehension of arrest\n• Regular bail after arrest\n\nRight to Fair Trial:\n• Presumption of innocence until proven guilty\n• Cross-examination of prosecution witnesses\n• Production of defense evidence and witnesses\n\nRight to Appeal:\n• Appeal against conviction to higher courts\n• Revision petitions for procedural errors\n• Special leave petitions to Supreme Court"
+},
+
+mentalHealthRights: {
+  title: "Mental Health Rights & Suicide Prevention in India",
+  content: "Mental health rights ensure dignity and proper care for individuals with mental illness. Key aspects include:\n\nRight to Access Healthcare:\n• Affordable mental healthcare services\n• Emergency mental health services\n• Integration with general healthcare systems\n\nRight to Community Living:\n• Live in, be part of, and not be segregated from society\n• Access to community-based rehabilitation services\n• Protection from segregation in mental health establishments\n\nRight to Protection:\n• Protection from cruel, inhuman, or degrading treatment\n• Right to confidentiality of mental health information\n• Protection from physical restraint except exceptional circumstances\n\nRight to Legal Aid:\n• Free legal services for mental healthcare matters\n• Assistance in filing complaints and appeals\n• Representation in mental health review boards\n\nRight to Information:\n• Information about rights, treatment, and prognosis\n• Access to medical records and reports\n• Information about available support services\n\nRight to Suicide Prevention:\n• Decriminalization of attempted suicide\n• Access to emergency healthcare and counseling\n• Rehabilitation and follow-up care services"
 }
 
 };
@@ -1156,21 +1220,50 @@ immigration: {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-          {[
-            { icon: <MessageCircle size={24} />, label: t.freeConsult },
-            { icon: <User size={24} />, label: t.lawyerMatching },
-            { icon: <Scale size={24} />, label: t.compatibility },
-            { icon: <FileText size={24} />, label: t.calculators },
-            { icon: <BookOpen size={24} />, label: t.kyc },
-            { icon: <Sparkles size={24} />, label: t.bestLawyers }
-          ].map((item, index) => (
-            <button key={index} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center">
-              <div className="flex justify-center mb-2 text-blue-600">{item.icon}</div>
-              <span className="text-sm font-medium text-gray-700">{item.label}</span>
-            </button>
-          ))}
-        </div>
+      {/* Quick Actions Grid - FIXED VERSION */}
+<div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+  {[
+    { 
+      icon: <MessageCircle size={24} />, 
+      label: t.freeConsult 
+    },
+    { 
+      icon: <User size={24} />, 
+      label: t.lawyerMatching 
+    },
+    { 
+      icon: <Scale size={24} />, 
+      label: t.compatibility 
+    },
+    { 
+      icon: <FileText size={24} />, 
+      label: 'Case Tracker' 
+    }, // REMOVED onClick from here
+    { 
+      icon: <BookOpen size={24} />, 
+      label: t.kyc 
+    },
+    { 
+      icon: <Sparkles size={24} />, 
+      label: t.bestLawyers 
+    }
+  ].map((item, index) => (
+    <button 
+      key={index} 
+      onClick={() => {
+        // ADD onClick HANDLER HERE
+        if (item.label === 'Case Tracker') {
+          setShowCaseTracker(true);
+        }
+        // Add other button actions if needed
+      }}
+      className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center"
+    >
+      <div className="flex justify-center mb-2 text-blue-600">{item.icon}</div>
+      <span className="text-sm font-medium text-gray-700">{item.label}</span>
+    </button>
+  ))}
+</div>
 
                 {/* Legal Forms Card - ADD THIS NEW SECTION */}
         <div 
@@ -1385,7 +1478,13 @@ immigration: {
               { type: 'propertyRights', label: t.propertyRights, color: 'bg-blue-500' },
               { type: 'familyRights', label: t.familyRights, color: 'bg-purple-500' },
               { type: 'workerRights', label: t.workerRights, color: 'bg-green-500' },
-              { type: 'consumerRights', label: t.consumerRights, color: 'bg-orange-500' }
+              { type: 'consumerRights', label: t.consumerRights, color: 'bg-orange-500' },
+              { type: 'studentMentalHealth', label: 'Student Mental Health', color: 'bg-pink-500' },
+              { type: 'tribalProperty', label: 'Tribal Property Rights', color: 'bg-teal-500' },
+              { type: 'digitalPrivacy', label: 'Digital Privacy', color: 'bg-indigo-500' },
+              { type: 'victimWitnessRights', label: 'Victim & Witness Rights', color: 'bg-red-500' },
+              { type: 'criminalTrial', label: 'Criminal Trial Process', color: 'bg-gray-600' },
+              { type: 'mentalHealthRights', label: 'Mental Health Rights', color: 'bg-yellow-500' }
             ].map((right) => (
               <button
                 key={right.type}
@@ -1898,6 +1997,8 @@ immigration: {
             ))}
           </div>
 
+         
+
           <div className="border-t bg-white p-4">
             <div className="flex items-end gap-3">
               <button className="p-3 text-gray-500 hover:text-gray-700 transition-colors">
@@ -1964,6 +2065,128 @@ immigration: {
           </div>
         </div>
       )}
+
+       {/* Case Tracker Modal */}
+{showCaseTracker && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+        <div className="flex items-center gap-3">
+          <FileText size={24} />
+          <div>
+            <h3 className="text-xl font-bold">Case Status Tracker</h3>
+            <p className="text-blue-100">Monitor your legal cases in real-time</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowCaseTracker(false)}
+          className="p-2 hover:bg-white/20 rounded-full transition-colors"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      {/* Cases List */}
+      <div className="p-6 overflow-y-auto max-h-[70vh]">
+        {activeCases.length === 0 ? (
+          <div className="text-center py-12">
+            <FileText className="mx-auto text-gray-400 mb-4" size={48} />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">No Active Cases</h3>
+            <p className="text-gray-500">Start a consultation to track your case progress</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {activeCases.map((caseItem) => (
+              <div key={caseItem.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+                {/* Case Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h4 className="font-bold text-gray-800 text-lg">{caseItem.title}</h4>
+                    <p className="text-gray-600">Lawyer: {caseItem.lawyer}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      caseItem.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                      caseItem.status === 'case_in_progress' ? 'bg-blue-100 text-blue-800' :
+                      caseItem.status === 'documents_submitted' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-purple-100 text-purple-800'
+                    }`}>
+                      {caseItem.statusText}
+                    </span>
+                    <p className="text-sm text-gray-500 mt-1">Case ID: {caseItem.id}</p>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Progress</span>
+                    <span>{caseItem.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${caseItem.progress}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Timeline */}
+                <div className="border-t pt-4">
+                  <h5 className="font-semibold text-gray-800 mb-3">Case Timeline</h5>
+                  <div className="space-y-3">
+                    {caseItem.timeline.map((stage, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                          stage.completed ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
+                        }`}>
+                          {stage.completed ? '✓' : index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <span className={`font-medium ${
+                            stage.completed ? 'text-green-600' : 'text-gray-600'
+                          }`}>
+                            {stage.stage}
+                          </span>
+                          {stage.date && (
+                            <p className="text-sm text-gray-500">Completed: {stage.date}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Next Steps */}
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <Clock size={16} />
+                    <span className="font-medium">Next Hearing: {caseItem.nextHearing}</span>
+                  </div>
+                  <p className="text-sm text-blue-600 mt-1">Last updated: {caseItem.lastUpdate}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="border-t p-4 bg-gray-50 flex justify-between items-center">
+        <span className="text-sm text-gray-600">
+          {activeCases.length} active case{activeCases.length !== 1 ? 's' : ''}
+        </span>
+        <button
+          onClick={() => setShowCaseTracker(false)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+        >
+          Close Tracker
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       
 
