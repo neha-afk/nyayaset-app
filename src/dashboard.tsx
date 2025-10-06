@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, MapPin, FileText, Phone, Globe, Volume2, User, Bell, ChevronRight, Scale, BookOpen, X, Mic, Send, Menu, ChevronDown, Sparkles, Camera, Image, AlertCircle, Clock, CheckCircle, ArrowLeft, ArrowRight, Play, Zap, Upload, ThumbsUp, ThumbsDown, Paperclip, Video, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Add TypeScript interfaces
 interface TranslationKeys {
@@ -307,6 +308,8 @@ const [scannedText, setScannedText] = useState('');
 const [selectedForm, setSelectedForm] = useState<LegalForm | null>(null);
 const [formTemplates, setFormTemplates] = useState<LegalForm[]>([]);
 const [showFormBuilder, setShowFormBuilder] = useState(false);
+
+ const navigate = useNavigate();
 
 const legalInfo: Record<string, { title: string; content: string }> = {
   propertyRights: {
@@ -887,7 +890,58 @@ consumerRights: {
           { text: "Overcharging", subCategory: "defective" },
           { text: "Online fraud", subCategory: "defective" }
         ]
-      }
+      },
+      criminal: {
+  text: "I can help with criminal matters. What kind of issue are you facing?",
+  options: [
+    { text: "FIR or police complaint", subCategory: "criminal" },
+    { text: "Bail application", subCategory: "criminal" },
+    { text: "False accusation", subCategory: "criminal" },
+    { text: "Theft, assault, or fraud case", subCategory: "criminal" }
+  ]
+},
+
+businessContract: {
+  text: "I can help with business or contract issues. What happened?",
+  options: [
+    { text: "Breach of contract", subCategory: "business" },
+    { text: "Partnership dispute", subCategory: "business" },
+    { text: "Non-payment or delayed payment", subCategory: "business" },
+    { text: "Legal documentation or agreement", subCategory: "business" }
+  ]
+},
+
+cyberCrime: {
+  text: "I can assist with cybercrime-related issues. What kind of problem are you facing?",
+  options: [
+    { text: "Online fraud or scam", subCategory: "cyber" },
+    { text: "Social media harassment", subCategory: "cyber" },
+    { text: "Data theft or hacking", subCategory: "cyber" },
+    { text: "Phishing or identity theft", subCategory: "cyber" }
+  ]
+},
+
+taxIssue: {
+  text: "I can help with tax-related concerns. What issue are you facing?",
+  options: [
+    { text: "Income tax filing issue", subCategory: "tax" },
+    { text: "GST or business tax dispute", subCategory: "tax" },
+    { text: "Tax notice from authorities", subCategory: "tax" },
+    { text: "Refund or deduction issue", subCategory: "tax" }
+  ]
+},
+
+immigration: {
+  text: "I can guide you on immigration matters. What do you need help with?",
+  options: [
+    { text: "Visa rejection or delay", subCategory: "immigration" },
+    { text: "Work or study permit issue", subCategory: "immigration" },
+    { text: "Citizenship or PR process", subCategory: "immigration" },
+    { text: "Deportation or appeal help", subCategory: "immigration" }
+  ]
+}
+
+
     };
 
     const categoryData = followUps[category] || {
@@ -1116,6 +1170,71 @@ consumerRights: {
               <span className="text-sm font-medium text-gray-700">{item.label}</span>
             </button>
           ))}
+        </div>
+
+                {/* Legal Forms Card - ADD THIS NEW SECTION */}
+        <div 
+          onClick={() => navigate('/legalforms')}
+          className="bg-gradient-to-br from-purple-600 to-blue-700 rounded-2xl p-6 text-white mb-8 cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                  <FileText className="text-white" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">Legal Form Templates</h3>
+                  <p className="text-purple-100">Ready-to-use legal documents</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="text-center">
+                  <div className="text-2xl mb-1">📝</div>
+                  <p className="text-sm text-purple-100">Affidavits</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl mb-1">🏠</div>
+                  <p className="text-sm text-purple-100">Property</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl mb-1">👨‍👩‍👧</div>
+                  <p className="text-sm text-purple-100">Family</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 bg-green-400 rounded-full border-2 border-white"></div>
+                    <div className="w-8 h-8 bg-yellow-400 rounded-full border-2 border-white"></div>
+                    <div className="w-8 h-8 bg-red-400 rounded-full border-2 border-white"></div>
+                  </div>
+                  <span className="text-purple-200 text-sm">500+ downloads today</span>
+                </div>
+                
+                <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full group-hover:bg-white/30 transition-colors">
+                  <span className="font-semibold">Get Started</span>
+                  <ArrowRight className="group-hover:translate-x-1 transition-transform" size={16} />
+                </div>
+              </div>
+            </div>
+            
+            <div className="hidden lg:block">
+              <div className="relative">
+                <div className="w-32 h-32 bg-white/10 rounded-2xl rotate-12 backdrop-blur-sm flex items-center justify-center">
+                  <div className="text-center -rotate-12">
+                    <div className="text-4xl mb-2">⚡</div>
+                    <div className="text-xs bg-white/20 px-2 py-1 rounded-full">12+ Templates</div>
+                  </div>
+                </div>
+                <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold">NEW</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
