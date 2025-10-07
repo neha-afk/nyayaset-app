@@ -309,9 +309,65 @@ const [selectedForm, setSelectedForm] = useState<LegalForm | null>(null);
 const [formTemplates, setFormTemplates] = useState<LegalForm[]>([]);
 const [showFormBuilder, setShowFormBuilder] = useState(false);
 
+
  const navigate = useNavigate();
 
- 
+const [showSuccessCalculator, setShowSuccessCalculator] = useState(false);
+const [caseDetails, setCaseDetails] = useState({
+  caseType: '',
+  evidenceStrength: 'medium',
+  witnessSupport: 'medium', 
+  documentation: 'medium',
+  urgency: 'normal',
+  budget: 'medium'
+});
+const [probabilityResult, setProbabilityResult] = useState<number | null>(null); 
+const calculateProbability = () => {
+  let baseProbability = 50; // Base 50% chance
+
+  // Case type adjustments
+  const caseTypeWeights: Record<string, number> = {
+    'consumer': 15,
+    'property': -5,
+    'family': -10,
+    'criminal': -20,
+    'business': 5,
+    'civil': 0,
+    'labor': 10,
+    'cyber': -5
+  };
+
+  // Evidence strength adjustments
+  const evidenceWeights: Record<string, number> = {
+    'weak': -20,
+    'medium': 0,
+    'strong': 25
+  };
+
+  // Witness support adjustments
+  const witnessWeights: Record<string, number> = {
+    'none': -15,
+    'medium': 5,
+    'strong': 20
+  };
+
+  // Documentation adjustments
+  const docWeights: Record<string, number> = {
+    'poor': -20,
+    'medium': 0,
+    'complete': 15
+  };
+
+  // Calculate probability
+  baseProbability += caseTypeWeights[caseDetails.caseType] || 0;
+  baseProbability += evidenceWeights[caseDetails.evidenceStrength];
+  baseProbability += witnessWeights[caseDetails.witnessSupport];
+  baseProbability += docWeights[caseDetails.documentation];
+
+  // Ensure probability is between 10% and 90%
+  const finalProbability = Math.max(10, Math.min(90, baseProbability));
+  setProbabilityResult(finalProbability);
+};
 
  const [showCaseTracker, setShowCaseTracker] = useState(false);
 const [activeCases, setActiveCases] = useState([
@@ -1305,8 +1361,7 @@ immigration: {
     </div>
   </div>
 </div>
-
-      {/* Quick Actions Grid - FIXED VERSION */}
+{/* Quick Actions Grid - FIXED VERSION */}
 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
   {[
     { 
@@ -1319,19 +1374,21 @@ immigration: {
     },
     { 
       icon: <Scale size={24} />, 
-      label: t.compatibility 
+      label: t.compatibility,
+      action: () => setShowSuccessCalculator(true)
     },
     { 
       icon: <FileText size={24} />, 
-      label: 'Case Tracker' 
-    }, // REMOVED onClick from here
+      label: 'Case Tracker',
+      action: () => setShowCaseTracker(true)
+    },
     { 
       icon: <Calculator size={24} />,
-  label: 'Cost Predictor',
-  action: () => {
-    console.log('Navigating to Cost Predictor...');
-    navigate('/costpredictor');
-  }
+      label: 'Cost Predictor',
+      action: () => {
+        console.log('Navigating to Cost Predictor...');
+        navigate('/costpredictor');
+      }
     },
     { 
       icon: <Sparkles size={24} />, 
@@ -1341,11 +1398,9 @@ immigration: {
     <button 
       key={index} 
       onClick={() => {
-        // ADD onClick HANDLER HERE
-        if (item.label === 'Case Tracker') {
-          setShowCaseTracker(true);
+        if (item.action) {
+          item.action();
         }
-        // Add other button actions if needed
       }}
       className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow text-center"
     >
@@ -2155,6 +2210,211 @@ immigration: {
           </div>
         </div>
       )}
+
+      {showSuccessCalculator && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-green-600 to-emerald-700 text-white">
+        <div className="flex items-center gap-3">
+          <Scale size={24} />
+          <div>
+            <h3 className="text-xl font-bold">Case Success Probability Calculator</h3>
+            <p className="text-green-100">Estimate your case success chances</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setShowSuccessCalculator(false);
+            setProbabilityResult(null);
+          }}
+          className="p-2 hover:bg-green-500 rounded-full transition-colors"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="p-6 overflow-y-auto max-h-[70vh]">
+        {!probabilityResult ? (
+          <div className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-blue-700 mb-2">
+                <AlertCircle size={18} />
+                <span className="font-semibold">Disclaimer</span>
+              </div>
+              <p className="text-blue-800 text-sm">
+                This is an AI-powered estimate based on similar cases. Actual outcomes may vary. 
+                Always consult with a qualified lawyer for professional legal advice.
+              </p>
+            </div>
+
+            {/* Case Type */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Case Type *
+              </label>
+              <select 
+                value={caseDetails.caseType}
+                onChange={(e) => setCaseDetails({...caseDetails, caseType: e.target.value})}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="">Select your case type</option>
+                <option value="property">Property Dispute</option>
+                <option value="family">Family Matter (Divorce/Custody)</option>
+                <option value="criminal">Criminal Case</option>
+                <option value="consumer">Consumer Complaint</option>
+                <option value="business">Business/Contract Dispute</option>
+                <option value="civil">Civil Suit</option>
+                <option value="labor">Labor/Employment Issue</option>
+                <option value="cyber">Cyber Crime</option>
+              </select>
+            </div>
+
+            {/* Evidence Strength */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Strength of Evidence
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['weak', 'medium', 'strong'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCaseDetails({...caseDetails, evidenceStrength: level})}
+                    className={`p-3 border rounded-xl text-sm font-medium transition-all ${
+                      caseDetails.evidenceStrength === level
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-300 text-gray-700 hover:border-green-300'
+                    }`}
+                  >
+                    {level === 'weak' ? '🔴 Weak' : level === 'medium' ? '🟡 Medium' : '🟢 Strong'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Witness Support */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Witness Support
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['none', 'medium', 'strong'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCaseDetails({...caseDetails, witnessSupport: level})}
+                    className={`p-3 border rounded-xl text-sm font-medium transition-all ${
+                      caseDetails.witnessSupport === level
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-300 text-gray-700 hover:border-green-300'
+                    }`}
+                  >
+                    {level === 'none' ? '❌ None' : level === 'medium' ? '🟡 Some' : '🟢 Strong'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Documentation */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Documentation Quality
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['poor', 'medium', 'complete'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCaseDetails({...caseDetails, documentation: level})}
+                    className={`p-3 border rounded-xl text-sm font-medium transition-all ${
+                      caseDetails.documentation === level
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-300 text-gray-700 hover:border-green-300'
+                    }`}
+                  >
+                    {level === 'poor' ? '❌ Poor' : level === 'medium' ? '🟡 Partial' : '🟢 Complete'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Calculate Button */}
+            <button
+              onClick={calculateProbability}
+              disabled={!caseDetails.caseType}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                caseDetails.caseType
+                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg hover:shadow-xl'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Calculate Success Probability
+            </button>
+          </div>
+        ) : (
+          /* Results Display */
+          <div className="text-center">
+            <div className="mb-6">
+              <div className="w-32 h-32 mx-auto mb-4 relative">
+                <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
+                  <div 
+                    className="absolute inset-4 rounded-full flex items-center justify-center text-white font-bold text-2xl"
+                    style={{
+                      background: `conic-gradient(
+                        #10b981 0% ${probabilityResult}%, 
+                        #e5e7eb ${probabilityResult}% 100%
+                      )`
+                    }}
+                  >
+                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
+                      <span className="text-3xl font-bold text-green-600">{probabilityResult}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Success Probability</h3>
+              <p className="text-gray-600">
+                Based on your inputs, your case has a <strong>{probabilityResult}%</strong> chance of success
+              </p>
+            </div>
+
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+              <h4 className="font-semibold text-green-800 mb-3">📈 Improvement Suggestions</h4>
+              <ul className="text-left text-green-700 text-sm space-y-2">
+                {probabilityResult < 50 && (
+                  <li>• <strong>Gather stronger evidence</strong> - This could increase success by 20-30%</li>
+                )}
+                {caseDetails.witnessSupport === 'none' && (
+                  <li>• <strong>Find supporting witnesses</strong> - Critical for case credibility</li>
+                )}
+                {caseDetails.documentation === 'poor' && (
+                  <li>• <strong>Complete your documentation</strong> - Proper paperwork increases success rate</li>
+                )}
+                <li>• <strong>Consult with specialized lawyer</strong> - Expert guidance can significantly improve outcomes</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setProbabilityResult(null)}
+                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Recalculate
+              </button>
+              <button
+                onClick={() => {
+                  setShowSuccessCalculator(false);
+                  setProbabilityResult(null);
+                }}
+                className="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+              >
+                Find Matching Lawyers
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
        {/* Case Tracker Modal */}
 {showCaseTracker && (
