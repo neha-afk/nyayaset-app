@@ -121,6 +121,20 @@ declare global {
   }
 }
 
+interface Notification {
+  id: string;
+  type: 'case_update' | 'lawyer_message' | 'document_ready' | 'payment' | 'system' | 'reminder';
+  title: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+  priority: 'low' | 'medium' | 'high';
+}
+
 const translations: Translations = {
   English: {
     appName: "Nyaya Setu",
@@ -309,9 +323,260 @@ const [selectedForm, setSelectedForm] = useState<LegalForm | null>(null);
 const [formTemplates, setFormTemplates] = useState<LegalForm[]>([]);
 const [showFormBuilder, setShowFormBuilder] = useState(false);
 
+//notifications
+const [notifications, setNotifications] = useState<Notification[]>([]);
+const [unreadCount, setUnreadCount] = useState(0);
+const [showNotifications, setShowNotifications] = useState(false);
+// Add these functions to your component
+// Add this useEffect after your state declarations
+useEffect(() => {
+  // Demo notifications
+  const sampleNotifications: Notification[] = [
+    {
+      id: '1',
+      type: 'case_update',
+      title: 'Case Status Updated',
+      message: 'Your property dispute case has moved to "Documents Submitted" stage',
+      timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+      read: false,
+      action: {
+        label: 'View Case',
+        onClick: () => setShowCaseTracker(true)
+      },
+      priority: 'medium'
+    },
+    {
+      id: '2',
+      type: 'lawyer_message',
+      title: 'New Message from Lawyer',
+      message: 'Adv. Rajesh Kumar sent you a message about your case documents',
+      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      read: false,
+      action: {
+        label: 'Reply',
+        onClick: () => setShowKYRAssistant(true)
+      },
+      priority: 'high'
+    },
+    {
+      id: '3',
+      type: 'document_ready',
+      title: 'Document Generated',
+      message: 'Your rental agreement is ready for download',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      read: true,
+      action: {
+        label: 'Download',
+        onClick: () => navigate('/legalforms')
+      },
+      priority: 'medium'
+    }
+  ];
+
+  setNotifications(sampleNotifications);
+}, []); // Empty dependency array = run once on component mount
+
+// Auto-update unread count
+useEffect(() => {
+  const unread = notifications.filter(notif => !notif.read).length;
+  setUnreadCount(unread);
+}, [notifications]);
+const formatTimeAgo = (date: Date) => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  return `${Math.floor(diffInSeconds / 86400)}d ago`;
+};
+
+const markAsRead = (id: string) => {
+  setNotifications(prev => 
+    prev.map(notif => 
+      notif.id === id ? { ...notif, read: true } : notif
+    )
+  );
+};
+
+const markAllAsRead = () => {
+  setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+};
+
+const clearAllNotifications = () => {
+  setNotifications([]);
+};
+
+
+
+// Auto-update unread count
+useEffect(() => {
+  const unread = notifications.filter(notif => !notif.read).length;
+  setUnreadCount(unread);
+}, [notifications]);
+const NotificationItem = ({ notification, onMarkAsRead }: { 
+  notification: Notification; 
+  onMarkAsRead: (id: string) => void;
+}) => {
+  const getIcon = () => {
+    switch (notification.type) {
+      case 'case_update': return '⚖️';
+      case 'lawyer_message': return '💬';
+      case 'document_ready': return '📄';
+      case 'payment': return '💰';
+      case 'system': return '🔧';
+      case 'reminder': return '⏰';
+      default: return '🔔';
+    }
+  };
+
+  
+
+  const getPriorityColor = () => {
+    switch (notification.priority) {
+      case 'high': return 'border-l-red-500';
+      case 'medium': return 'border-l-orange-500';
+      case 'low': return 'border-l-blue-500';
+      default: return 'border-l-gray-500';
+    }
+  };
+  
+
+  return (
+    <div 
+      className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${getPriorityColor()} ${
+        !notification.read ? 'bg-blue-50' : ''
+      }`}
+      onClick={() => onMarkAsRead(notification.id)}
+    >
+      <div className="flex gap-3">
+        <div className="text-2xl">{getIcon()}</div>
+        <div className="flex-1">
+          <div className="flex justify-between items-start mb-1">
+            <h4 className={`font-semibold ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+              {notification.title}
+            </h4>
+            <span className="text-xs text-gray-500">
+              {formatTimeAgo(notification.timestamp)}
+            </span>
+          </div>
+          <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
+          {notification.action && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                notification.action?.onClick();
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              {notification.action.label} →
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
  const navigate = useNavigate();
+ const [showCostPredictor, setShowCostPredictor] = useState(false);
+ //to calculate cost
+ const [costDetails, setCostDetails] = useState({
+  caseType: '',
+  complexity: 'medium',
+  location: 'metro',
+  lawyerExperience: 'mid',
+  courtLevel: 'district',
+  urgency: 'normal'
+});
+const [costEstimate, setCostEstimate] = useState<{
+  min: number;
+  max: number;
+  breakdown: Array<{ category: string; amount: number }>;
+} | null>(null);
 
+const calculateCostEstimate = () => {
+  // Base costs by case type
+  const baseCosts: Record<string, { min: number; max: number }> = {
+    property: { min: 25000, max: 75000 },
+    family: { min: 15000, max: 50000 },
+    criminal: { min: 30000, max: 100000 },
+    consumer: { min: 5000, max: 20000 },
+    business: { min: 50000, max: 200000 },
+    civil: { min: 20000, max: 60000 },
+    labor: { min: 10000, max: 35000 },
+    cyber: { min: 25000, max: 80000 }
+  };
+
+  // Complexity multipliers with type safety
+  const complexityMultipliers: Record<string, number> = {
+    simple: 0.7,
+    medium: 1.0,
+    complex: 1.5
+  };
+
+  // Location multipliers with type safety
+  const locationMultipliers: Record<string, number> = {
+    metro: 1.2,
+    tier2: 1.0,
+    tier3: 0.8,
+    rural: 0.6
+  };
+
+  // Lawyer experience multipliers with type safety
+  const experienceMultipliers: Record<string, number> = {
+    junior: 0.6,
+    mid: 1.0,
+    senior: 1.5,
+    expert: 2.0
+  };
+
+  // Court level multipliers with type safety
+  const courtMultipliers: Record<string, number> = {
+    district: 1.0,
+    high: 1.8,
+    supreme: 3.0,
+    tribunal: 0.8
+  };
+
+  const base = baseCosts[costDetails.caseType] || { min: 20000, max: 60000 };
+  
+  // Use type-safe access with fallbacks
+  const complexityMultiplier = complexityMultipliers[costDetails.complexity] || 1.0;
+  const locationMultiplier = locationMultipliers[costDetails.location] || 1.0;
+  const experienceMultiplier = experienceMultipliers[costDetails.lawyerExperience] || 1.0;
+  const courtMultiplier = courtMultipliers[costDetails.courtLevel] || 1.0;
+
+  const minCost = Math.round(base.min * 
+    complexityMultiplier * 
+    locationMultiplier * 
+    experienceMultiplier * 
+    courtMultiplier
+  );
+
+  const maxCost = Math.round(base.max * 
+    complexityMultiplier * 
+    locationMultiplier * 
+    experienceMultiplier * 
+    courtMultiplier
+  );
+
+  // Cost breakdown
+  const breakdown = [
+    { category: 'Lawyer Consultation', amount: Math.round(minCost * 0.1) },
+    { category: 'Case Preparation', amount: Math.round(minCost * 0.3) },
+    { category: 'Court Fees & Documentation', amount: Math.round(minCost * 0.2) },
+    { category: 'Hearing Appearances', amount: Math.round(minCost * 0.4) }
+  ];
+
+  setCostEstimate({
+    min: minCost,
+    max: maxCost,
+    breakdown
+  });
+};
+ //success calculator
 const [showSuccessCalculator, setShowSuccessCalculator] = useState(false);
 const [caseDetails, setCaseDetails] = useState({
   caseType: '',
@@ -1272,6 +1537,74 @@ immigration: {
           </div>
           
           <div className="flex items-center gap-3">
+             {/* Notification Bell */}
+      <div className="relative">
+        <button 
+          onClick={() => setShowNotifications(!showNotifications)}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors relative"
+        >
+          <Bell size={20} className="text-gray-600" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+
+        {/* Notification Dropdown */}
+        {showNotifications && (
+          <div className="absolute right-0 top-12 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-96 overflow-hidden z-50">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-gray-800">Notifications</h3>
+                <div className="flex gap-2">
+                  {unreadCount > 0 && (
+                    <button 
+                      onClick={markAllAsRead}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setShowNotifications(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto max-h-80">
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  <Bell size={32} className="mx-auto mb-2 text-gray-300" />
+                  <p>No notifications yet</p>
+                </div>
+              ) : (
+                notifications.map(notification => (
+                  <NotificationItem 
+                    key={notification.id} 
+                    notification={notification}
+                    onMarkAsRead={(id) => markAsRead(id)}
+                  />
+                ))
+              )}
+            </div>
+
+            <div className="p-3 border-t border-gray-200 bg-gray-50">
+              <button 
+                onClick={clearAllNotifications}
+                className="w-full text-center text-sm text-gray-600 hover:text-gray-800 py-2"
+              >
+                Clear all notifications
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
             <div className="relative">
               <button 
                 onClick={() => setShowLanguageMenu(!showLanguageMenu)}
@@ -1442,12 +1775,9 @@ immigration: {
       action: () => setShowCaseTracker(true)
     },
     { 
-      icon: <Calculator size={24} />,
-      label: 'Cost Predictor',
-      action: () => {
-        console.log('Navigating to Cost Predictor...');
-        navigate('/costpredictor');
-      }
+       icon: <Calculator size={24} />,
+  label: 'Cost Predictor',
+  action: () => setShowCostPredictor(true)
     },
     { 
       icon: <Sparkles size={24} />, 
@@ -2640,91 +2970,393 @@ immigration: {
   </div>
 )}
 
-       {/* Case Tracker Modal */}
-{showCaseTracker && (
+{/*cost predictor */}
+{showCostPredictor && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-xl">
         <div className="flex items-center gap-3">
-          <FileText size={24} />
+          <div className="p-2 bg-yellow-500 rounded-lg shadow-lg">
+            <Calculator size={24} className="text-blue-900" />
+          </div>
           <div>
-            <h3 className="text-xl font-bold">Case Status Tracker</h3>
-            <p className="text-blue-100">Monitor your legal cases in real-time</p>
+            <h3 className="text-xl font-bold tracking-wide">Legal Cost Predictor</h3>
+            <p className="text-yellow-200 text-sm">Estimate your legal expenses with precision</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setShowCostPredictor(false);
+            setCostEstimate(null);
+          }}
+          className="p-2 hover:bg-blue-700 rounded-full transition-all hover:rotate-90 duration-300"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="p-6 overflow-y-auto max-h-[70vh]">
+        {!costEstimate ? (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-50 via-yellow-50 to-blue-50 border-l-4 border-yellow-500 rounded-xl p-4 shadow-md">
+              <div className="flex items-center gap-2 text-blue-900 mb-2">
+                <AlertCircle size={18} className="text-yellow-600" />
+                <span className="font-bold">Important Disclaimer</span>
+              </div>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                This is an estimate based on average legal costs. Actual fees may vary based on lawyer experience, case complexity, and location.
+              </p>
+            </div>
+
+            {/* Case Type */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Case Type *
+              </label>
+              <select 
+                value={costDetails.caseType}
+                onChange={(e) => setCostDetails({...costDetails, caseType: e.target.value})}
+                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-blue-900 transition-all shadow-sm hover:border-blue-800"
+              >
+                <option value="">Select your case type</option>
+                <option value="property">Property Dispute</option>
+                <option value="family">Family Matter (Divorce/Custody)</option>
+                <option value="criminal">Criminal Case</option>
+                <option value="consumer">Consumer Complaint</option>
+                <option value="business">Business/Contract Dispute</option>
+                <option value="civil">Civil Suit</option>
+                <option value="labor">Labor/Employment Issue</option>
+                <option value="cyber">Cyber Crime</option>
+              </select>
+            </div>
+
+            {/* Complexity Level */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Case Complexity
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['simple', 'medium', 'complex'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCostDetails({...costDetails, complexity: level})}
+                    className={`p-3 border-2 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md ${
+                      costDetails.complexity === level
+                        ? 'border-yellow-500 bg-gradient-to-br from-blue-900 to-blue-800 text-white shadow-lg transform scale-105'
+                        : 'border-gray-300 text-gray-700 hover:border-yellow-400 hover:bg-yellow-50'
+                    }`}
+                  >
+                    {level === 'simple' ? '🔴 Simple' : level === 'medium' ? '🟡 Medium' : '🟢 Complex'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Location
+              </label>
+              <select 
+                value={costDetails.location}
+                onChange={(e) => setCostDetails({...costDetails, location: e.target.value})}
+                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-blue-900 transition-all shadow-sm hover:border-blue-800"
+              >
+                <option value="metro">Metro City (Delhi, Mumbai, Bangalore)</option>
+                <option value="tier2">Tier 2 City</option>
+                <option value="tier3">Tier 3 City</option>
+                <option value="rural">Rural Area</option>
+              </select>
+            </div>
+
+            {/* Lawyer Experience */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Preferred Lawyer Experience
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Junior (1-3 years)', value: 'junior' },
+                  { label: 'Mid-level (4-7 years)', value: 'mid' },
+                  { label: 'Senior (8-15 years)', value: 'senior' },
+                  { label: 'Expert (15+ years)', value: 'expert' }
+                ].map((level) => (
+                  <button
+                    key={level.value}
+                    onClick={() => setCostDetails({...costDetails, lawyerExperience: level.value})}
+                    className={`p-3 border-2 rounded-xl text-sm font-semibold transition-all text-left shadow-sm hover:shadow-md ${
+                      costDetails.lawyerExperience === level.value
+                        ? 'border-yellow-500 bg-gradient-to-br from-blue-900 to-blue-800 text-white shadow-lg transform scale-105'
+                        : 'border-gray-300 text-gray-700 hover:border-yellow-400 hover:bg-yellow-50'
+                    }`}
+                  >
+                    {level.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Court Level */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Court Level
+              </label>
+              <select 
+                value={costDetails.courtLevel}
+                onChange={(e) => setCostDetails({...costDetails, courtLevel: e.target.value})}
+                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-blue-900 transition-all shadow-sm hover:border-blue-800"
+              >
+                <option value="district">District Court</option>
+                <option value="high">High Court</option>
+                <option value="supreme">Supreme Court</option>
+                <option value="tribunal">Tribunal</option>
+              </select>
+            </div>
+
+            {/* Calculate Button */}
+            <button
+              onClick={calculateCostEstimate}
+              disabled={!costDetails.caseType}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg ${
+                costDetails.caseType
+                  ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white hover:from-blue-800 hover:to-blue-700 hover:shadow-2xl transform hover:scale-105 border-2 border-yellow-500'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Calculate Estimated Costs
+            </button>
+          </div>
+        ) : (
+          /* Results Display */
+          <div className="space-y-6">
+            {/* Main Cost Estimate */}
+            <div className="text-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 rounded-2xl p-8 border-4 border-yellow-500 shadow-2xl">
+              <h3 className="text-2xl font-bold text-yellow-400 mb-3 tracking-wide">Estimated Legal Costs</h3>
+              <div className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
+                ₹{costEstimate.min.toLocaleString()} - ₹{costEstimate.max.toLocaleString()}
+              </div>
+              <p className="text-yellow-200 font-medium">Total estimated range for your case</p>
+            </div>
+
+            {/* Cost Breakdown */}
+            <div className="bg-gradient-to-r from-blue-50 to-yellow-50 border-2 border-blue-900 rounded-xl p-6 shadow-lg">
+              <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                <FileText size={20} className="text-yellow-600" />
+                Cost Breakdown
+              </h4>
+              <div className="space-y-4">
+                {costEstimate.breakdown.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center pb-3 border-b border-blue-200 last:border-0">
+                    <span className="text-gray-800 font-medium">{item.category}</span>
+                    <span className="font-bold text-blue-900 text-lg">₹{item.amount.toLocaleString()}</span>
+                  </div>
+                ))}
+                <div className="border-t-2 border-yellow-500 pt-4 mt-3">
+                  <div className="flex justify-between font-bold text-blue-900 text-xl">
+                    <span>Total Estimated Range</span>
+                    <span className="text-yellow-600">₹{costEstimate.min.toLocaleString()} - ₹{costEstimate.max.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cost Saving Tips */}
+            <div className="bg-gradient-to-r from-green-50 to-yellow-50 border-l-4 border-yellow-500 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
+                <Zap size={20} className="text-yellow-600" />
+                💡 Cost Saving Tips
+              </h4>
+              <ul className="text-gray-800 text-sm space-y-2 leading-relaxed">
+                <li>• <strong className="text-blue-900">Opt for fixed fees</strong> instead of hourly rates for predictable costs</li>
+                <li>• <strong className="text-blue-900">Prepare documents in advance</strong> to reduce lawyer preparation time</li>
+                <li>• <strong className="text-blue-900">Consider mediation</strong> which is often cheaper than litigation</li>
+                <li>• <strong className="text-blue-900">Bundle multiple legal matters</strong> for package discounts</li>
+              </ul>
+            </div>
+
+            {/* Next Steps */}
+            <div className="bg-gradient-to-r from-blue-50 to-yellow-50 border-l-4 border-blue-900 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
+                <ArrowRight size={20} className="text-yellow-600" />
+                Next Steps
+              </h4>
+              <div className="text-gray-800 text-sm space-y-2 leading-relaxed">
+                <p><strong className="text-blue-900">Get exact quotes:</strong> Contact 2-3 lawyers for precise pricing</p>
+                <p><strong className="text-blue-900">Payment plans:</strong> Many lawyers offer EMI options</p>
+                <p><strong className="text-blue-900">Legal aid:</strong> Check if you qualify for free legal assistance</p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                onClick={() => setCostEstimate(null)}
+                className="border-2 border-blue-900 text-blue-900 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-md hover:shadow-lg"
+              >
+                Recalculate
+              </button>
+              <button
+                onClick={() => {
+                  setShowCostPredictor(false);
+                  setCostEstimate(null);
+                  // Trigger lawyer matching
+                  setTimeout(() => askFollowUpQuestion(costDetails.caseType), 500);
+                }}
+                className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-3 rounded-xl font-bold hover:from-blue-800 hover:to-blue-700 transition-all shadow-lg hover:shadow-2xl border-2 border-yellow-500 transform hover:scale-105"
+              >
+                Find Affordable Lawyers
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Case Tracker Modal */}
+{showCaseTracker && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-yellow-500 rounded-lg shadow-lg">
+            <FileText size={24} className="text-blue-900" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold tracking-wide">Case Status Tracker</h3>
+            <p className="text-yellow-200 text-sm">Monitor your legal cases in real-time</p>
           </div>
         </div>
         <button
           onClick={() => setShowCaseTracker(false)}
-          className="p-2 hover:bg-white/20 rounded-full transition-colors"
+          className="p-2 hover:bg-blue-700 rounded-full transition-all hover:rotate-90 duration-300"
         >
           <X size={20} />
         </button>
       </div>
 
       {/* Cases List */}
-      <div className="p-6 overflow-y-auto max-h-[70vh]">
+      <div className="p-6 overflow-y-auto max-h-[70vh] bg-gradient-to-br from-gray-50 to-blue-50">
         {activeCases.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="mx-auto text-gray-400 mb-4" size={48} />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">No Active Cases</h3>
-            <p className="text-gray-500">Start a consultation to track your case progress</p>
+            <div className="bg-gradient-to-br from-blue-100 to-yellow-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <FileText className="text-blue-900" size={48} />
+            </div>
+            <h3 className="text-lg font-bold text-blue-900 mb-2">No Active Cases</h3>
+            <p className="text-gray-600">Start a consultation to track your case progress</p>
           </div>
         ) : (
           <div className="space-y-6">
             {activeCases.map((caseItem) => (
-              <div key={caseItem.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+              <div key={caseItem.id} className="border-2 border-blue-200 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 bg-white hover:border-yellow-500 transform hover:-translate-y-1">
                 {/* Case Header */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-5">
                   <div>
-                    <h4 className="font-bold text-gray-800 text-lg">{caseItem.title}</h4>
-                    <p className="text-gray-600">Lawyer: {caseItem.lawyer}</p>
+                    <h4 className="font-bold text-blue-900 text-xl mb-1">{caseItem.title}</h4>
+                    <p className="text-gray-700 font-medium flex items-center gap-2">
+                      <span className="text-yellow-600">⚖️</span>
+                      Lawyer: {caseItem.lawyer}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      caseItem.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                      caseItem.status === 'case_in_progress' ? 'bg-blue-100 text-blue-800' :
-                      caseItem.status === 'documents_submitted' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-purple-100 text-purple-800'
+                    <span className={`px-4 py-2 rounded-full text-sm font-bold shadow-md ${
+                      caseItem.status === 'resolved' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
+                      caseItem.status === 'case_in_progress' ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white' :
+                      caseItem.status === 'documents_submitted' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white' :
+                      'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
                     }`}>
                       {caseItem.statusText}
                     </span>
-                    <p className="text-sm text-gray-500 mt-1">Case ID: {caseItem.id}</p>
+                    <p className="text-sm text-gray-500 mt-2 font-semibold">Case ID: #{caseItem.id}</p>
                   </div>
                 </div>
 
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Progress</span>
-                    <span>{caseItem.progress}%</span>
+                {/* Enhanced Dynamic Progress Bar */}
+                <div className="mb-6">
+                  <div className="flex justify-between text-sm font-bold text-gray-700 mb-3">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                      Progress Status
+                    </span>
+                    <span className="text-blue-900 text-lg">{caseItem.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="relative w-full bg-gradient-to-r from-gray-200 to-gray-300 rounded-full h-4 overflow-hidden shadow-inner">
+                    {/* Animated gradient progress */}
                     <div 
-                      className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${caseItem.progress}%` }}
-                    />
+                      className="h-4 rounded-full transition-all duration-1000 ease-out relative overflow-hidden shadow-lg"
+                      style={{ 
+                        width: `${caseItem.progress}%`,
+                        background: `linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #eab308 100%)`
+                      }}
+                    >
+                      {/* Shine effect - animated with CSS */}
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
+                        style={{
+                          animation: 'shimmer 2s infinite',
+                        }}
+                      ></div>
+                    </div>
+                    {/* Percentage markers */}
+                    <div className="absolute inset-0 flex justify-between px-1 items-center pointer-events-none">
+                      {[25, 50, 75].map(mark => (
+                        <div key={mark} className="w-0.5 h-2 bg-white/50 rounded"></div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Progress milestones */}
+                  <div className="flex justify-between text-xs text-gray-500 mt-2 font-medium">
+                    <span>Filed</span>
+                    <span>In Progress</span>
+                    <span>Near Completion</span>
+                    <span>Resolved</span>
                   </div>
                 </div>
 
                 {/* Timeline */}
-                <div className="border-t pt-4">
-                  <h5 className="font-semibold text-gray-800 mb-3">Case Timeline</h5>
-                  <div className="space-y-3">
+                <div className="border-t-2 border-blue-100 pt-5">
+                  <h5 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                    <span className="w-1 h-6 bg-yellow-500 rounded"></span>
+                    Case Timeline
+                  </h5>
+                  <div className="space-y-4">
                     {caseItem.timeline.map((stage, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                          stage.completed ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
+                      <div key={index} className="flex items-start gap-4 relative">
+                        {/* Connecting line */}
+                        {index < caseItem.timeline.length - 1 && (
+                          <div className={`absolute left-3 top-8 w-0.5 h-full ${
+                            stage.completed ? 'bg-gradient-to-b from-yellow-500 to-blue-900' : 'bg-gray-300'
+                          }`}></div>
+                        )}
+                        
+                        {/* Stage indicator */}
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow-lg relative z-10 transition-all duration-300 ${
+                          stage.completed 
+                            ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white ring-4 ring-yellow-200 scale-110' 
+                            : 'bg-gradient-to-br from-gray-300 to-gray-400 text-gray-700'
                         }`}>
                           {stage.completed ? '✓' : index + 1}
                         </div>
-                        <div className="flex-1">
-                          <span className={`font-medium ${
-                            stage.completed ? 'text-green-600' : 'text-gray-600'
+                        
+                        <div className="flex-1 pb-2">
+                          <span className={`font-bold text-base block ${
+                            stage.completed ? 'text-blue-900' : 'text-gray-600'
                           }`}>
                             {stage.stage}
                           </span>
                           {stage.date && (
-                            <p className="text-sm text-gray-500">Completed: {stage.date}</p>
+                            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                              <Clock size={14} className="text-yellow-600" />
+                              Completed: {stage.date}
+                            </p>
+                          )}
+                          {!stage.completed && index === caseItem.timeline.findIndex(s => !s.completed) && (
+                            <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                              Current Stage
+                            </span>
                           )}
                         </div>
                       </div>
@@ -2733,12 +3365,12 @@ immigration: {
                 </div>
 
                 {/* Next Steps */}
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-center gap-2 text-blue-700">
-                    <Clock size={16} />
-                    <span className="font-medium">Next Hearing: {caseItem.nextHearing}</span>
+                <div className="mt-5 p-4 bg-gradient-to-r from-blue-50 via-yellow-50 to-blue-50 rounded-xl border-l-4 border-yellow-500 shadow-md">
+                  <div className="flex items-center gap-2 text-blue-900 mb-2">
+                    <Clock size={18} className="text-yellow-600" />
+                    <span className="font-bold text-base">Next Hearing: {caseItem.nextHearing}</span>
                   </div>
-                  <p className="text-sm text-blue-600 mt-1">Last updated: {caseItem.lastUpdate}</p>
+                  <p className="text-sm text-gray-700 font-medium">Last updated: {caseItem.lastUpdate}</p>
                 </div>
               </div>
             ))}
@@ -2747,13 +3379,16 @@ immigration: {
       </div>
 
       {/* Footer */}
-      <div className="border-t p-4 bg-gray-50 flex justify-between items-center">
-        <span className="text-sm text-gray-600">
-          {activeCases.length} active case{activeCases.length !== 1 ? 's' : ''}
-        </span>
+      <div className="border-t-2 border-blue-200 p-5 bg-gradient-to-r from-gray-50 to-blue-50 flex justify-between items-center shadow-inner">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+          <span className="text-sm font-bold text-blue-900">
+            {activeCases.length} active case{activeCases.length !== 1 ? 's' : ''} in progress
+          </span>
+        </div>
         <button
           onClick={() => setShowCaseTracker(false)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+          className="px-6 py-3 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold hover:from-blue-800 hover:to-blue-700 transition-all shadow-lg hover:shadow-2xl border-2 border-yellow-500 transform hover:scale-105"
         >
           Close Tracker
         </button>
