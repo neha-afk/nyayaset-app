@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, MapPin, FileText, Phone, Globe, Volume2, User, Bell, ChevronRight, Scale, BookOpen, X, Mic, Send, Menu, ChevronDown, Sparkles, Camera, Image, AlertCircle, Clock, CheckCircle, ArrowLeft, ArrowRight, Play, Zap, Upload, ThumbsUp, ThumbsDown, Paperclip, Video, Shield } from 'lucide-react';
+import { MessageCircle, MapPin, FileText, Phone, Globe, Volume2, User, Bell, ChevronRight, Scale, BookOpen, X, Mic, Send, Menu, ChevronDown, Sparkles, Camera, Image, AlertCircle, Clock, CheckCircle, ArrowLeft, ArrowRight, Play, Zap, Upload, ThumbsUp, ThumbsDown, Paperclip, Video, Shield, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Add TypeScript interfaces
@@ -311,6 +311,8 @@ const [showFormBuilder, setShowFormBuilder] = useState(false);
 
  const navigate = useNavigate();
 
+ 
+
  const [showCaseTracker, setShowCaseTracker] = useState(false);
 const [activeCases, setActiveCases] = useState([
   {
@@ -621,7 +623,7 @@ mentalHealthRights: {
     criminal: {
       general: [
         {
-          name: "Adv. Ravi Shankar",
+          name: "Adv. Adarsh Pandey",
           image: "👨‍⚖️",
           rating: 4.9,
           experience: "2 years",
@@ -1324,8 +1326,12 @@ immigration: {
       label: 'Case Tracker' 
     }, // REMOVED onClick from here
     { 
-      icon: <BookOpen size={24} />, 
-      label: t.kyc 
+      icon: <Calculator size={24} />,
+  label: 'Cost Predictor',
+  action: () => {
+    console.log('Navigating to Cost Predictor...');
+    navigate('/costpredictor');
+  }
     },
     { 
       icon: <Sparkles size={24} />, 
