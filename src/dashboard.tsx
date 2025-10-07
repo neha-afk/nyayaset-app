@@ -1220,6 +1220,90 @@ immigration: {
           </div>
         </div>
 
+        {/* Legal Aid Hero Card - Add this RIGHT AFTER the header */}
+<div 
+  onClick={() => navigate('/legalaid')}
+  className="relative bg-gradient-to-br from-red-600 to-orange-500 rounded-2xl p-8 text-white mb-8 cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-3xl group overflow-hidden"
+>
+  {/* Background Pattern */}
+  <div className="absolute inset-0 bg-black/10"></div>
+  <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+  <div className="absolute -left-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-lg"></div>
+  
+  <div className="relative z-10">
+    <div className="flex flex-col md:flex-row items-center justify-between">
+      <div className="flex-1 mb-6 md:mb-0">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30">
+            <Scale className="text-white" size={32} />
+          </div>
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Free Legal Aid Application</h2>
+            <p className="text-orange-100 text-lg">Government-supported legal assistance for eligible citizens</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="text-center bg-white/10 rounded-lg p-3 backdrop-blur-sm border border-white/20">
+            <div className="text-2xl mb-1">⚖️</div>
+            <p className="text-sm font-semibold">Income-Based</p>
+          </div>
+          <div className="text-center bg-white/10 rounded-lg p-3 backdrop-blur-sm border border-white/20">
+            <div className="text-2xl mb-1">💰</div>
+            <p className="text-sm font-semibold">Zero Cost</p>
+          </div>
+          <div className="text-center bg-white/10 rounded-lg p-3 backdrop-blur-sm border border-white/20">
+            <div className="text-2xl mb-1">🏛️</div>
+            <p className="text-sm font-semibold">Govt. Approved</p>
+          </div>
+          <div className="text-center bg-white/10 rounded-lg p-3 backdrop-blur-sm border border-white/20">
+            <div className="text-2xl mb-1">📋</div>
+            <p className="text-sm font-semibold">Easy Process</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full">
+            <div className="flex -space-x-2">
+              <div className="w-8 h-8 bg-green-400 rounded-full border-2 border-white"></div>
+              <div className="w-8 h-8 bg-yellow-400 rounded-full border-2 border-white"></div>
+              <div className="w-8 h-8 bg-blue-400 rounded-full border-2 border-white"></div>
+            </div>
+            <span className="text-orange-100 text-sm font-medium">500+ applications approved this month</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="hidden lg:block">
+        <div className="relative">
+          <div className="w-40 h-40 bg-white/10 rounded-2xl rotate-12 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+            <div className="text-center -rotate-12">
+              <div className="text-4xl mb-2">🛡️</div>
+              <div className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm">ELIGIBILITY CHECK</div>
+            </div>
+          </div>
+          <div className="absolute -top-3 -right-3 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+            <span className="text-xs font-bold text-gray-800">FREE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* CTA Button */}
+    <div className="mt-6 flex justify-between items-center">
+      <div className="flex items-center gap-2 text-orange-200">
+        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <span className="text-sm">Eligibility: Annual income below ₹3 Lakhs</span>
+      </div>
+      
+      <div className="flex items-center gap-3 bg-white text-red-600 px-6 py-3 rounded-xl font-bold hover:bg-orange-50 transition-all duration-300 group-hover:scale-105 shadow-lg">
+        <span>Check Eligibility & Apply</span>
+        <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+      </div>
+    </div>
+  </div>
+</div>
+
       {/* Quick Actions Grid - FIXED VERSION */}
 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
   {[

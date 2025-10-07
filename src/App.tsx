@@ -6,6 +6,7 @@ import NyayaSetuDashboard from './dashboard'; // Correct component name
 import LawyerDashboard from './lawyerdashboard';
 import JurisConnect from './jurisconnect'; // Import JurisConnect
 import LegalFormsFeature from './legalforms';
+import LegalAid from './legalaid';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/lawyerdashboard" element={<LawyerDashboard />} />
          {/* JurisConnect - Legal Social Platform */}
         <Route path="/jurisconnect" element={<JurisConnect />} />
+        <Route path="/legalaid" element={<LegalAid />} />
         
       </Routes>
     </Router>
