@@ -369,6 +369,65 @@ const calculateProbability = () => {
   setProbabilityResult(finalProbability);
 };
 
+// Helper functions for enhanced features
+const getSimilarCaseRate = () => {
+  const rates: Record<string, number> = {
+    'property': 65,
+    'family': 58,
+    'criminal': 45,
+    'consumer': 72,
+    'business': 68,
+    'civil': 62,
+    'labor': 70,
+    'cyber': 55
+  };
+  return rates[caseDetails.caseType] || 60;
+};
+
+const getEvidenceBasedRate = () => {
+  const evidenceRates: Record<string, number> = {
+    'weak': 35,
+    'medium': 60,
+    'strong': 85
+  };
+  return evidenceRates[caseDetails.evidenceStrength] || 60;
+};
+
+const getEstimatedCosts = () => {
+  const costs: Record<string, string> = {
+    'property': '₹25,000 - ₹75,000',
+    'family': '₹15,000 - ₹50,000',
+    'criminal': '₹30,000 - ₹1,00,000',
+    'consumer': '₹5,000 - ₹20,000',
+    'business': '₹50,000 - ₹2,00,000',
+    'civil': '₹20,000 - ₹60,000',
+    'labor': '₹10,000 - ₹35,000',
+    'cyber': '₹25,000 - ₹80,000'
+  };
+  return costs[caseDetails.caseType] || '₹20,000 - ₹60,000';
+};
+
+const getPotentialRecovery = () => {
+  const recovery: Record<string, string> = {
+    'property': '₹5,00,000 - ₹50,00,000',
+    'family': 'Maintenance/Assets',
+    'criminal': 'Freedom/Reputation',
+    'consumer': '₹10,000 - ₹5,00,000',
+    'business': '₹2,00,000 - ₹1,00,00,000',
+    'civil': '₹1,00,000 - ₹25,00,000',
+    'labor': 'Salary + Compensation',
+    'cyber': '₹50,000 - ₹20,00,000'
+  };
+  return recovery[caseDetails.caseType] || 'Case-specific value';
+};
+
+const getNetValue = () => {
+  if (['criminal', 'family'].includes(caseDetails.caseType)) {
+    return 'Non-monetary benefits';
+  }
+  return 'Positive expected value';
+};
+
  const [showCaseTracker, setShowCaseTracker] = useState(false);
 const [activeCases, setActiveCases] = useState([
   {
@@ -2211,16 +2270,19 @@ immigration: {
         </div>
       )}
 
-      {showSuccessCalculator && (
+{showSuccessCalculator && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-green-600 to-emerald-700 text-white">
-        <div className="flex items-center gap-3">
-          <Scale size={24} />
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
+      {/* Header - Royal Blue & Gold */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-yellow-500/10"></div>
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
+            <Scale size={24} className="text-blue-900" />
+          </div>
           <div>
-            <h3 className="text-xl font-bold">Case Success Probability Calculator</h3>
-            <p className="text-green-100">Estimate your case success chances</p>
+            <h3 className="text-xl font-bold text-white">Case Success Probability Calculator</h3>
+            <p className="text-amber-200">Estimate your case success chances</p>
           </div>
         </div>
         <button
@@ -2228,18 +2290,19 @@ immigration: {
             setShowSuccessCalculator(false);
             setProbabilityResult(null);
           }}
-          className="p-2 hover:bg-green-500 rounded-full transition-colors"
+          className="p-2 hover:bg-white/20 rounded-full transition-colors relative z-10"
         >
           <X size={20} />
         </button>
       </div>
 
-      <div className="p-6 overflow-y-auto max-h-[70vh]">
+      <div className="p-6 overflow-y-auto max-h-[70vh] bg-gradient-to-b from-blue-50/30 to-white">
         {!probabilityResult ? (
           <div className="space-y-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-blue-700 mb-2">
-                <AlertCircle size={18} />
+            {/* Disclaimer */}
+            <div className="bg-gradient-to-r from-blue-50 to-amber-50 border-l-4 border-blue-800 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-blue-900 mb-2">
+                <AlertCircle size={18} className="text-amber-600" />
                 <span className="font-semibold">Disclaimer</span>
               </div>
               <p className="text-blue-800 text-sm">
@@ -2250,29 +2313,31 @@ immigration: {
 
             {/* Case Type */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
+              <label className="block text-sm font-bold text-blue-900 mb-2 flex items-center gap-2">
+                <span className="text-amber-600">⚖️</span>
                 Case Type *
               </label>
               <select 
                 value={caseDetails.caseType}
                 onChange={(e) => setCaseDetails({...caseDetails, caseType: e.target.value})}
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all bg-white shadow-sm"
               >
                 <option value="">Select your case type</option>
-                <option value="property">Property Dispute</option>
-                <option value="family">Family Matter (Divorce/Custody)</option>
-                <option value="criminal">Criminal Case</option>
-                <option value="consumer">Consumer Complaint</option>
-                <option value="business">Business/Contract Dispute</option>
-                <option value="civil">Civil Suit</option>
-                <option value="labor">Labor/Employment Issue</option>
-                <option value="cyber">Cyber Crime</option>
+                <option value="property">🏠 Property Dispute</option>
+                <option value="family">👨‍👩‍👧 Family Matter (Divorce/Custody)</option>
+                <option value="criminal">⚖️ Criminal Case</option>
+                <option value="consumer">🛒 Consumer Complaint</option>
+                <option value="business">💼 Business/Contract Dispute</option>
+                <option value="civil">📋 Civil Suit</option>
+                <option value="labor">💰 Labor/Employment Issue</option>
+                <option value="cyber">💻 Cyber Crime</option>
               </select>
             </div>
 
             {/* Evidence Strength */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
+              <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-amber-600">📊</span>
                 Strength of Evidence
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -2280,10 +2345,10 @@ immigration: {
                   <button
                     key={level}
                     onClick={() => setCaseDetails({...caseDetails, evidenceStrength: level})}
-                    className={`p-3 border rounded-xl text-sm font-medium transition-all ${
+                    className={`p-4 border-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 shadow-sm ${
                       caseDetails.evidenceStrength === level
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-gray-300 text-gray-700 hover:border-green-300'
+                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50 text-blue-900 shadow-md'
+                        : 'border-blue-200 text-gray-700 hover:border-amber-300 bg-white'
                     }`}
                   >
                     {level === 'weak' ? '🔴 Weak' : level === 'medium' ? '🟡 Medium' : '🟢 Strong'}
@@ -2294,7 +2359,8 @@ immigration: {
 
             {/* Witness Support */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
+              <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-amber-600">👥</span>
                 Witness Support
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -2302,10 +2368,10 @@ immigration: {
                   <button
                     key={level}
                     onClick={() => setCaseDetails({...caseDetails, witnessSupport: level})}
-                    className={`p-3 border rounded-xl text-sm font-medium transition-all ${
+                    className={`p-4 border-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 shadow-sm ${
                       caseDetails.witnessSupport === level
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-gray-300 text-gray-700 hover:border-green-300'
+                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50 text-blue-900 shadow-md'
+                        : 'border-blue-200 text-gray-700 hover:border-amber-300 bg-white'
                     }`}
                   >
                     {level === 'none' ? '❌ None' : level === 'medium' ? '🟡 Some' : '🟢 Strong'}
@@ -2316,7 +2382,8 @@ immigration: {
 
             {/* Documentation */}
             <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
+              <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-amber-600">📄</span>
                 Documentation Quality
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -2324,10 +2391,10 @@ immigration: {
                   <button
                     key={level}
                     onClick={() => setCaseDetails({...caseDetails, documentation: level})}
-                    className={`p-3 border rounded-xl text-sm font-medium transition-all ${
+                    className={`p-4 border-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 shadow-sm ${
                       caseDetails.documentation === level
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-gray-300 text-gray-700 hover:border-green-300'
+                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50 text-blue-900 shadow-md'
+                        : 'border-blue-200 text-gray-700 hover:border-amber-300 bg-white'
                     }`}
                   >
                     {level === 'poor' ? '❌ Poor' : level === 'medium' ? '🟡 Partial' : '🟢 Complete'}
@@ -2340,73 +2407,230 @@ immigration: {
             <button
               onClick={calculateProbability}
               disabled={!caseDetails.caseType}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 ${
                 caseDetails.caseType
-                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg hover:shadow-xl'
+                  ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white hover:from-blue-800 hover:to-blue-700 shadow-lg hover:shadow-xl'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Calculate Success Probability
+              <span className="flex items-center justify-center gap-2">
+                <Calculator size={20} />
+                Calculate Success Probability
+              </span>
             </button>
           </div>
         ) : (
-          /* Results Display */
-          <div className="text-center">
-            <div className="mb-6">
-              <div className="w-32 h-32 mx-auto mb-4 relative">
-                <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
+          /* Enhanced Results Display */
+          <div className="space-y-6">
+            {/* Main Probability Result */}
+            <div className="text-center bg-gradient-to-br from-blue-50 to-amber-50 rounded-2xl p-6 border-2 border-amber-400 shadow-lg">
+              <div className="w-36 h-36 mx-auto mb-4 relative">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-100 to-amber-100 flex items-center justify-center shadow-inner">
                   <div 
-                    className="absolute inset-4 rounded-full flex items-center justify-center text-white font-bold text-2xl"
+                    className="absolute inset-4 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg"
                     style={{
                       background: `conic-gradient(
-                        #10b981 0% ${probabilityResult}%, 
-                        #e5e7eb ${probabilityResult}% 100%
+                        #f59e0b 0% ${probabilityResult}%, 
+                        #1e40af ${probabilityResult}% 100%
                       )`
                     }}
                   >
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-3xl font-bold text-green-600">{probabilityResult}%</span>
+                    <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-xl">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-blue-900 to-amber-600 bg-clip-text text-transparent">{probabilityResult}%</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Success Probability</h3>
-              <p className="text-gray-600">
-                Based on your inputs, your case has a <strong>{probabilityResult}%</strong> chance of success
+              <h3 className="text-2xl font-bold text-blue-900 mb-2">Success Probability</h3>
+              <p className="text-blue-800">
+                Based on your inputs, your case has a <strong className="text-amber-700">{probabilityResult}%</strong> chance of success
               </p>
             </div>
 
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-              <h4 className="font-semibold text-green-800 mb-3">📈 Improvement Suggestions</h4>
-              <ul className="text-left text-green-700 text-sm space-y-2">
+            {/* Action Plan */}
+            <div className="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-300 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">
+                  <Clock size={18} className="text-blue-900" />
+                </div>
+                📋 Recommended Action Plan
+              </h4>
+              <div className="space-y-4 text-sm">
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">1</div>
+                  <div className="text-blue-900">
+                    <strong className="text-blue-900 block mb-1">Immediate (1-7 days):</strong>
+                    <ul className="space-y-1 text-blue-800">
+                      <li>• Gather all relevant documents and evidence</li>
+                      <li>• Consult with a specialized lawyer</li>
+                      <li>• Preserve any digital evidence</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-full flex items-center justify-center text-blue-900 text-xs font-bold flex-shrink-0">2</div>
+                  <div className="text-blue-900">
+                    <strong className="text-blue-900 block mb-1">Short-term (1-4 weeks):</strong>
+                    <ul className="space-y-1 text-blue-800">
+                      <li>• Complete missing documentation</li>
+                      <li>• Identify and contact potential witnesses</li>
+                      <li>• File necessary legal notices</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">3</div>
+                  <div className="text-blue-900">
+                    <strong className="text-blue-900 block mb-1">Long-term (1-6 months):</strong>
+                    <ul className="space-y-1 text-blue-800">
+                      <li>• Prepare for court hearings</li>
+                      <li>• Explore settlement options</li>
+                      <li>• Build comprehensive case strategy</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Similar Cases Analysis */}
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-900 to-blue-800 rounded-lg flex items-center justify-center">
+                  <FileText size={18} className="text-amber-400" />
+                </div>
+                📊 Similar Cases Analysis
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center bg-white rounded-lg p-3 border border-amber-200">
+                  <span className="text-blue-900 font-medium">Similar {caseDetails.caseType} cases:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-blue-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-blue-900 to-amber-600 h-2.5 rounded-full" 
+                        style={{ width: `${getSimilarCaseRate()}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-blue-900 min-w-[60px] text-right">{getSimilarCaseRate()}%</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center bg-white rounded-lg p-3 border border-amber-200">
+                  <span className="text-blue-900 font-medium">With your evidence level:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-blue-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-blue-900 to-amber-600 h-2.5 rounded-full" 
+                        style={{ width: `${getEvidenceBasedRate()}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-blue-900 min-w-[60px] text-right">{getEvidenceBasedRate()}%</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center bg-white rounded-lg p-3 border border-amber-200">
+                  <span className="text-blue-900 font-medium">Proper documentation:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-blue-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-blue-900 to-amber-600 h-2.5 rounded-full" 
+                        style={{ width: '78%' }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-blue-900 min-w-[60px] text-right">78%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cost-Benefit Analysis */}
+            <div className="bg-gradient-to-br from-blue-900 to-blue-800 border-2 border-amber-400 rounded-xl p-5 shadow-lg text-white">
+              <h4 className="font-bold mb-4 flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">
+                  <Calculator size={18} className="text-blue-900" />
+                </div>
+                💰 Cost-Benefit Insight
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <span>Estimated legal costs:</span>
+                  <span className="font-bold text-amber-300">{getEstimatedCosts()}</span>
+                </div>
+                <div className="flex justify-between bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <span>Potential recovery/value:</span>
+                  <span className="font-bold text-amber-300">{getPotentialRecovery()}</span>
+                </div>
+                <div className="border-t-2 border-amber-400 pt-3 mt-3">
+                  <div className="flex justify-between font-bold text-lg bg-amber-400 text-blue-900 rounded-lg p-3">
+                    <span>Net expected value:</span>
+                    <span>{getNetValue()}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-amber-200 mt-2">
+                  *Based on {probabilityResult}% success probability and typical case outcomes
+                </p>
+              </div>
+            </div>
+
+            {/* Improvement Suggestions */}
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-2xl">📈</span>
+                Improvement Suggestions
+              </h4>
+              <ul className="text-left text-blue-900 text-sm space-y-2">
                 {probabilityResult < 50 && (
-                  <li>• <strong>Gather stronger evidence</strong> - This could increase success by 20-30%</li>
+                  <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                    <span className="text-amber-600 flex-shrink-0">✓</span>
+                    <span><strong>Gather stronger evidence</strong> - This could increase success by 20-30%</span>
+                  </li>
                 )}
                 {caseDetails.witnessSupport === 'none' && (
-                  <li>• <strong>Find supporting witnesses</strong> - Critical for case credibility</li>
+                  <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                    <span className="text-amber-600 flex-shrink-0">✓</span>
+                    <span><strong>Find supporting witnesses</strong> - Critical for case credibility</span>
+                  </li>
                 )}
                 {caseDetails.documentation === 'poor' && (
-                  <li>• <strong>Complete your documentation</strong> - Proper paperwork increases success rate</li>
+                  <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                    <span className="text-amber-600 flex-shrink-0">✓</span>
+                    <span><strong>Complete your documentation</strong> - Proper paperwork increases success rate</span>
+                  </li>
                 )}
-                <li>• <strong>Consult with specialized lawyer</strong> - Expert guidance can significantly improve outcomes</li>
+                <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                  <span className="text-amber-600 flex-shrink-0">✓</span>
+                  <span><strong>Consult with specialized lawyer</strong> - Expert guidance can significantly improve outcomes</span>
+                </li>
               </ul>
             </div>
 
-            <div className="flex gap-3">
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
               <button
                 onClick={() => setProbabilityResult(null)}
-                className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                className="border-2 border-blue-900 text-blue-900 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-md"
               >
-                Recalculate
+                <FileText size={16} />
+                Save Analysis
               </button>
               <button
                 onClick={() => {
                   setShowSuccessCalculator(false);
                   setProbabilityResult(null);
+                  setTimeout(() => askFollowUpQuestion(caseDetails.caseType), 500);
                 }}
-                className="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+                className="bg-gradient-to-r from-amber-500 to-yellow-500 text-blue-900 py-3 rounded-xl font-bold hover:from-amber-600 hover:to-yellow-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
               >
-                Find Matching Lawyers
+                <User size={16} />
+                Find Lawyers
+              </button>
+              <button
+                onClick={() => {
+                  setShowSuccessCalculator(false);
+                  setProbabilityResult(null);
+                  navigate('/legalforms');
+                }}
+                className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-3 rounded-xl font-bold hover:from-blue-800 hover:to-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+              >
+                <FileText size={16} />
+                Get Documents
               </button>
             </div>
           </div>
