@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, MapPin, FileText, Phone, Globe, Volume2, User, Bell, ChevronRight, Scale, BookOpen, X, Mic, Send, Menu, ChevronDown, Sparkles, Camera, Image, AlertCircle, Clock, CheckCircle, ArrowLeft, ArrowRight, Play, Zap, Upload, ThumbsUp, ThumbsDown, Paperclip, Video, Shield, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { backendAPI } from './services/backendApi';
 
 // Add TypeScript interfaces
 interface TranslationKeys {
@@ -55,6 +56,12 @@ interface TranslationKeys {
   iAmA?: string;
   client?: string;
   lawyer?: string;
+}
+
+// Add these interfaces
+interface ChatbotService {
+  sendMessage(message: string): Promise<string>;
+  clearHistory(): Promise<void>;
 }
 
 interface LegalForm {
@@ -327,6 +334,50 @@ const [showFormBuilder, setShowFormBuilder] = useState(false);
 const [notifications, setNotifications] = useState<Notification[]>([]);
 const [unreadCount, setUnreadCount] = useState(0);
 const [showNotifications, setShowNotifications] = useState(false);
+// Create chatbot service function
+// Add this interface with your other interfaces
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  userType: 'client' | 'lawyer';
+  language: string;
+}
+
+// Then update the state to use the interface:
+const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+const createChatbotService = (userId?: string): ChatbotService => {
+  let conversationId = `conv_${Date.now()}`;
+  
+  return {
+    async sendMessage(userMessage: string): Promise<string> {
+      try {
+        const response = await backendAPI.sendChatMessage(
+          userMessage, 
+          conversationId, 
+          userId,
+          'gpt-3.5-turbo'
+        );
+        
+        return response.response;
+      } catch (error) {
+        console.error('Error sending message:', error);
+        throw error;
+      }
+    },
+
+    async clearHistory(): Promise<void> {
+      try {
+        await backendAPI.clearConversation(conversationId, userId);
+        conversationId = `conv_${Date.now()}`; // Reset conversation ID
+      } catch (error) {
+        console.error('Error clearing history:', error);
+        throw error;
+      }
+    }
+  };
+};
 // Add these functions to your component
 // Add this useEffect after your state declarations
 useEffect(() => {
@@ -821,266 +872,7 @@ mentalHealthRights: {
     { text: "Emergency help", icon: "🚨", category: "emergency" }
   ];
 
-  const lawyerDatabase: Record<string, any> = {
-    property: {
-      inheritance: [
-        {
-          name: "Adv. Rajesh Kumar",
-          image: "👨‍⚖️",
-          rating: 4.8,
-          experience: "15 years",
-          cases: 350,
-          specialization: "Property & Inheritance Law",
-          rate: "₹3,500/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Kannada"],
-          availability: "Available"
-        },
-        {
-          name: "Adv. Priya Sharma",
-          image: "👩‍⚖️",
-          rating: 4.9,
-          experience: "12 years",
-          cases: 280,
-          specialization: "Inheritance & Will Disputes",
-          rate: "₹4,200/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Telugu"],
-          availability: "Available"
-        },
-        {
-          name: "Adv. Venkatesh Rao",
-          image: "👨‍⚖️",
-          rating: 4.7,
-          experience: "18 years",
-          cases: 420,
-          specialization: "Property Rights & Succession",
-          rate: "₹3,800/hr",
-          location: "Bengaluru",
-          languages: ["English", "Kannada", "Tamil"],
-          availability: "Busy - Next slot tomorrow"
-        }
-      ],
-      buying: [
-        {
-          name: "Adv. Meera Reddy",
-          image: "👩‍⚖️",
-          rating: 4.6,
-          experience: "10 years",
-          cases: 200,
-          specialization: "Property Transactions",
-          rate: "₹3,000/hr",
-          location: "Bengaluru",
-          languages: ["English", "Telugu", "Hindi"],
-          availability: "Available"
-        },
-        {
-          name: "Adv. Arun Patel",
-          image: "👨‍⚖️",
-          rating: 4.8,
-          experience: "14 years",
-          cases: 310,
-          specialization: "Real Estate Law",
-          rate: "₹4,000/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Gujarati"],
-          availability: "Available"
-        },
-        {
-          name: "Adv. Lakshmi Iyer",
-          image: "👩‍⚖️",
-          rating: 4.7,
-          experience: "11 years",
-          cases: 245,
-          specialization: "Property Purchase & Sale",
-          rate: "₹3,200/hr",
-          location: "Bengaluru",
-          languages: ["English", "Tamil", "Kannada"],
-          availability: "Available"
-        }
-      ],
-      dispute: [
-        {
-          name: "Adv. Kavitha Singh",
-          image: "👩‍⚖️",
-          rating: 4.9,
-          experience: "16 years",
-          cases: 380,
-          specialization: "Property Disputes & Litigation",
-          rate: "₹4,500/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Kannada"],
-          availability: "Available"
-        },
-        {
-          name: "Adv. Suresh Menon",
-          image: "👨‍⚖️",
-          rating: 4.7,
-          experience: "13 years",
-          cases: 290,
-          specialization: "Land Disputes",
-          rate: "₹3,500/hr",
-          location: "Bengaluru",
-          languages: ["English", "Malayalam", "Hindi"],
-          availability: "Available"
-        },
-        {
-          name: "Adv. Ramesh Babu",
-          image: "👨‍⚖️",
-          rating: 4.8,
-          experience: "17 years",
-          cases: 405,
-          specialization: "Boundary & Title Disputes",
-          rate: "₹4,100/hr",
-          location: "Bengaluru",
-          languages: ["English", "Telugu", "Kannada"],
-          availability: "Available"
-        }
-      ]
-    },
-    family: {
-      divorce: [
-        {
-          name: "Adv. Anjali Desai",
-          image: "👩‍⚖️",
-          rating: 4.9,
-          experience: "14 years",
-          cases: 320,
-          specialization: "Divorce & Custody",
-          rate: "₹4,000/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Marathi"],
-          availability: "Available"
-        }
-      ],
-      custody: [
-        {
-          name: "Adv. Deepa Iyer",
-          image: "👩‍⚖️",
-          rating: 4.8,
-          experience: "11 years",
-          cases: 240,
-          specialization: "Child Custody",
-          rate: "₹3,800/hr",
-          location: "Bengaluru",
-          languages: ["English", "Tamil", "Hindi"],
-          availability: "Available"
-        }
-      ]
-    },
-    worker: {
-      salary: [
-        {
-          name: "Adv. Vikram Joshi",
-          image: "👨‍⚖️",
-          rating: 4.6,
-          experience: "9 years",
-          cases: 180,
-          specialization: "Labour & Employment Law",
-          rate: "₹2,800/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Marathi"],
-          availability: "Available"
-        }
-      ]
-    },
-    consumer: {
-      defective: [
-        {
-          name: "Adv. Sneha Kapoor",
-          image: "👩‍⚖️",
-          rating: 4.7,
-          experience: "8 years",
-          cases: 160,
-          specialization: "Consumer Protection",
-          rate: "₹2,500/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Punjabi"],
-          availability: "Available"
-        }
-      ]
-    },
-    criminal: {
-      general: [
-        {
-          name: "Adv. Adarsh Pandey",
-          image: "👨‍⚖️",
-          rating: 4.9,
-          experience: "2 years",
-          cases: 50,
-          specialization: "Criminal Defense & Litigation",
-          rate: "₹5,000/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Kannada"],
-          availability: "Available"
-        }
-      ]
-    },
-    business: {
-      general: [
-        {
-          name: "Adv. Ashok Reddy",
-          image: "👨‍⚖️",
-          rating: 4.8,
-          experience: "5 years",
-          cases: 340,
-          specialization: "Corporate & Contract Law",
-          rate: "₹4,500/hr",
-          location: "Bengaluru",
-          languages: ["English", "Telugu", "Hindi"],
-          availability: "Available"
-        }
-      ]
-    },
-    cyber: {
-      general: [
-        {
-          name: "Adv. Rohan Verma",
-          image: "👨‍⚖️",
-          rating: 4.8,
-          experience: "8 years",
-          cases: 150,
-          specialization: "Cyber Crime & Digital Fraud",
-          rate: "₹4,000/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Punjabi"],
-          availability: "Available"
-        }
-      ]
-    },
-    tax: {
-      general: [
-        {
-          name: "Adv. Narendra Bhat",
-          image: "👨‍⚖️",
-          rating: 4.9,
-          experience: "8 years",
-          cases: 69,
-          specialization: "Tax Law & GST",
-          rate: "₹5,500/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Kannada"],
-          availability: "Available"
-        }
-      ]
-    },
-    immigration: {
-      general: [
-        {
-          name: "Adv. Pradeep Malhotra",
-          image: "👨‍⚖️",
-          rating: 4.8,
-          experience: "2 years",
-          cases: 28,
-          specialization: "Immigration & Visa Law",
-          rate: "₹4,200/hr",
-          location: "Bengaluru",
-          languages: ["English", "Hindi", "Punjabi"],
-          availability: "Available"
-        }
-      ]
-    }
-  };
+ 
 
   
 
@@ -1299,144 +1091,7 @@ mentalHealthRights: {
     setLawyerUserInput('');
   };
 
-  const askFollowUpQuestion = (category: string) => {
-    const followUps: Record<string, { text: string; options: FollowUpOption[] }> = {
-      property: {
-        text: "I understand you have a property issue. Can you tell me more? Please select:",
-        options: [
-          { text: "Inheritance", subCategory: "inheritance" },
-          { text: "Buying/Selling", subCategory: "buying" },
-          { text: "Dispute with neighbor", subCategory: "dispute" },
-          { text: "Illegal occupation", subCategory: "dispute" }
-        ]
-      },
-      family: {
-        text: "I'm here to help with your family matter. What specifically do you need help with?",
-        options: [
-          { text: "Divorce", subCategory: "divorce" },
-          { text: "Child custody", subCategory: "custody" },
-          { text: "Maintenance", subCategory: "divorce" },
-          { text: "Marriage registration", subCategory: "divorce" }
-        ]
-      },
-      worker: {
-        text: "Let me help you with your worker rights. What's your concern?",
-        options: [
-          { text: "Salary not paid", subCategory: "salary" },
-          { text: "Wrongful termination", subCategory: "salary" },
-          { text: "Working conditions", subCategory: "salary" },
-          { text: "Leave issues", subCategory: "salary" }
-        ]
-      },
-      consumer: {
-        text: "I can help with consumer issues. What happened?",
-        options: [
-          { text: "Defective product", subCategory: "defective" },
-          { text: "Poor service", subCategory: "defective" },
-          { text: "Overcharging", subCategory: "defective" },
-          { text: "Online fraud", subCategory: "defective" }
-        ]
-      },
-      criminal: {
-  text: "I can help with criminal matters. What kind of issue are you facing?",
-  options: [
-    { text: "FIR or police complaint", subCategory: "criminal" },
-    { text: "Bail application", subCategory: "criminal" },
-    { text: "False accusation", subCategory: "criminal" },
-    { text: "Theft, assault, or fraud case", subCategory: "criminal" }
-  ]
-},
-
-businessContract: {
-  text: "I can help with business or contract issues. What happened?",
-  options: [
-    { text: "Breach of contract", subCategory: "business" },
-    { text: "Partnership dispute", subCategory: "business" },
-    { text: "Non-payment or delayed payment", subCategory: "business" },
-    { text: "Legal documentation or agreement", subCategory: "business" }
-  ]
-},
-
-cyberCrime: {
-  text: "I can assist with cybercrime-related issues. What kind of problem are you facing?",
-  options: [
-    { text: "Online fraud or scam", subCategory: "cyber" },
-    { text: "Social media harassment", subCategory: "cyber" },
-    { text: "Data theft or hacking", subCategory: "cyber" },
-    { text: "Phishing or identity theft", subCategory: "cyber" }
-  ]
-},
-
-taxIssue: {
-  text: "I can help with tax-related concerns. What issue are you facing?",
-  options: [
-    { text: "Income tax filing issue", subCategory: "tax" },
-    { text: "GST or business tax dispute", subCategory: "tax" },
-    { text: "Tax notice from authorities", subCategory: "tax" },
-    { text: "Refund or deduction issue", subCategory: "tax" }
-  ]
-},
-
-immigration: {
-  text: "I can guide you on immigration matters. What do you need help with?",
-  options: [
-    { text: "Visa rejection or delay", subCategory: "immigration" },
-    { text: "Work or study permit issue", subCategory: "immigration" },
-    { text: "Citizenship or PR process", subCategory: "immigration" },
-    { text: "Deportation or appeal help", subCategory: "immigration" }
-  ]
-}
-
-
-    };
-
-    const categoryData = followUps[category] || {
-      text: "Tell me more about your issue",
-      options: []
-    };
-
-    setChatMessages(prev => [...prev, { 
-      type: 'bot', 
-      text: categoryData.text,
-      showOptions: true,
-      options: categoryData.options,
-      category: category
-    }]);
-  };
-
-  const handleSubCategorySelection = (category: string, subCategory: string, optionText: string) => {
-    setChatMessages(prev => [...prev, { type: 'user', text: optionText }]);
-    
-    setChatMessages(prev => [...prev, { 
-      type: 'bot', 
-      text: '🔍 Connecting you to the best lawyers for your case...',
-      isLoading: true
-    }]);
-
-    setTimeout(() => {
-      const lawyers = lawyerDatabase[category]?.[subCategory] || [];
-      
-      if (lawyers.length > 0) {
-        setChatMessages(prev => {
-          const filtered = prev.filter(msg => !msg.isLoading);
-          return [...filtered, { 
-            type: 'bot', 
-            text: `✅ Found ${lawyers.length} expert lawyers for you! Here are the best matches:`,
-            showLawyers: true,
-            lawyers: lawyers
-          }];
-        });
-      } else {
-        setChatMessages(prev => {
-          const filtered = prev.filter(msg => !msg.isLoading);
-          return [...filtered, { 
-            type: 'bot', 
-            text: 'I can connect you with general lawyers. Please call our helpline: 1800-XXX-XXXX'
-          }];
-        });
-      }
-    }, 2000);
-  };
+  
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1463,33 +1118,11 @@ immigration: {
     }
   };
 
-  const sendMessage = () => {
-    if (userInput.trim()) {
-      setChatMessages([...chatMessages, { type: 'user', text: userInput }]);
-      
-      setTimeout(() => {
-        const response = analyzeUserQuery(userInput);
-        setChatMessages(prev => [...prev, { type: 'bot', text: response, showButtons: false }]);
-      }, 1000);
-      
-      setUserInput('');
-    }
-  };
 
-  const analyzeUserQuery = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes('urgent') || lowerQuery.includes('emergency') || lowerQuery.includes('help')) {
-      setUrgencyLevel('high');
-      return '🚨 I understand this is urgent. Based on your situation, I recommend:\n\n1. Contact emergency legal helpline: 1800-XXX-XXXX\n2. File a police complaint if needed\n3. I can connect you with a lawyer immediately\n\nShall I proceed with option 3?';
-    }
-    
-    if (lowerQuery.includes('property') || lowerQuery.includes('land') || lowerQuery.includes('house')) {
-      return 'I can help with property matters. In Bengaluru, property disputes are common. Here is what you can do:\n\n• Verify property documents at Sub-Registrar office\n• Check encumbrance certificate\n• Consult with a property lawyer\n\nWould you like me to find property lawyers near you?';
-    }
-    
-    return 'I understand your concern. To help you better, could you provide more details? You can:\n\n• Type more information\n• Upload relevant documents\n• Speak your concern\n\nI am here to guide you step by step.';
-  };
+
+
+
+ 
 
   const handleNyayaClick = () => {
     setNyayaExpression('talking');
@@ -1502,29 +1135,190 @@ immigration: {
     playAudio(`Learning about ${lawType}`);
   };
 
-  const handleQuickReply = (option: QuickReplyOption) => {
-    const message = option.text;
-    setShowQuickReplies(false);
-    setChatMessages([...chatMessages, { type: 'user', text: message, category: option.category }]);
+  const sendMessage = async () => {
+  if (userInput.trim()) {
+    const userMessage = userInput;
     
-    if (option.category === 'emergency') {
-      setUrgencyLevel('high');
-      setTimeout(() => {
-        setChatMessages(prev => [...prev, { 
+    // Add user message to UI immediately
+    setChatMessages(prev => [...prev, { 
+      type: 'user', 
+      text: userMessage
+    }]);
+    
+    setUserInput('');
+    
+    // Create chatbot service instance
+    const chatbot = createChatbotService(currentUser?.id);
+    
+    try {
+      // Show loading indicator
+      setChatMessages(prev => [...prev, { 
+        type: 'bot', 
+        text: 'Thinking...',
+        isLoading: true
+      }]);
+      
+      // Get AI response from backend
+      const botResponse = await chatbot.sendMessage(userMessage);
+      
+      // Remove loading and add actual response
+      setChatMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        return [...withoutLoading, { 
           type: 'bot', 
-          text: '🚨 **EMERGENCY LEGAL ASSISTANCE**\n\nI understand this is urgent. Here is immediate help:',
-          urgent: true,
-          showEmergencyOptions: true
-        }]);
-      }, 500);
-    } else {
-      setUrgencyLevel('normal');
-      setTimeout(() => {
-        askFollowUpQuestion(option.category);
-      }, 800);
+          text: botResponse
+        }];
+      });
+      
+    } catch (error: any) {
+      // Remove loading and show error
+      setChatMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        return [...withoutLoading, { 
+          type: 'bot', 
+          text: `Sorry, I encountered an error: ${error.message || 'Please try again.'}`
+        }];
+      });
     }
-  };
+  }
+};
 
+  const handleQuickReply = async (option: QuickReplyOption) => {
+  const message = option.text;
+  setShowQuickReplies(false);
+  
+  // Add user message to UI
+  setChatMessages(prev => [...prev, { 
+    type: 'user', 
+    text: message, 
+    category: option.category 
+  }]);
+  
+  const chatbot = createChatbotService(currentUser?.id);
+  
+  try {
+    setChatMessages(prev => [...prev, { 
+      type: 'bot', 
+      text: 'Thinking...',
+      isLoading: true
+    }]);
+    
+    // Use backend for the response
+    const response = await chatbot.sendMessage(`User selected: ${option.text} in category: ${option.category}. Provide appropriate legal guidance and ask relevant follow-up questions.`);
+    
+    setChatMessages(prev => {
+      const withoutLoading = prev.filter(msg => !msg.isLoading);
+      return [...withoutLoading, { 
+        type: 'bot', 
+        text: response
+      }];
+    });
+  } catch (error) {
+    setChatMessages(prev => {
+      const withoutLoading = prev.filter(msg => !msg.isLoading);
+      return [...withoutLoading, { 
+        type: 'bot', 
+        text: `I understand you need help with ${option.text.toLowerCase()}. Could you tell me more about your situation?`
+      }];
+    });
+  }
+};
+
+  async function handleSubCategorySelection(category: string, subCategory: string, text: string): Promise<void> {
+    // Add the user's choice to the chat UI immediately
+    setChatMessages(prev => [
+      ...prev,
+      {
+        type: 'user',
+        text: `${text}${subCategory ? ` — ${subCategory}` : ''}`,
+        category
+      }
+    ]);
+
+    // Create chatbot instance bound to current user (if any)
+    const chatbot = createChatbotService(currentUser?.id);
+
+    // Show a loading indicator from the bot
+    setChatMessages(prev => [...prev, { type: 'bot', text: 'Thinking...', isLoading: true }]);
+
+    try {
+      // Build a clear prompt for the backend AI service
+      const prompt = `User selected category: ${category}
+  Sub-category: ${subCategory || 'N/A'}
+  User selection/label: ${text || 'N/A'}
+
+  Provide concise legal guidance and relevant follow-up questions tailored to this category and sub-category. If appropriate, suggest document templates or next steps and ask for any missing details.`;
+
+      const response = await chatbot.sendMessage(prompt);
+
+      // Replace loading indicator with actual bot response
+      setChatMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        return [...withoutLoading, { type: 'bot', text: response }];
+      });
+    } catch (error: any) {
+      console.error('Error in handleSubCategorySelection:', error);
+      setChatMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        return [
+          ...withoutLoading,
+          {
+            type: 'bot',
+            text: `Sorry, I couldn't process that selection right now. Please try again or provide more details.`
+          }
+        ];
+      });
+    } finally {
+      // Optionally re-enable quick replies for follow-ups
+      setShowQuickReplies(true);
+    }
+  }
+  function askFollowUpQuestion(caseType: string): void {
+    const caseLabel = caseType || 'your case';
+
+    // Ensure the assistant modal is visible so user sees follow-up
+    setShowKYRAssistant(true);
+    setShowQuickReplies(false);
+
+    // Add user's intent and a loading bot message to the chat
+    setChatMessages(prev => [
+      ...prev,
+      { type: 'user', text: `I just ran a calculator for a ${caseLabel} and want next steps.` },
+      { type: 'bot', text: 'Looking for recommended next steps and lawyers...', isLoading: true }
+    ]);
+
+    // Ask backend AI for concise follow-up guidance and lawyer suggestions.
+    // We don't await here so function stays void; handle async results via promises.
+    const chatbot = createChatbotService(currentUser?.id);
+    chatbot.sendMessage(
+      `User ran a success/cost calculator for a ${caseLabel}. Provide:
+       1) A short, friendly summary of recommended next steps the user should take.
+       2) Typical documents they should prepare.
+       3) A brief suggestion on the type of lawyer they should consult and a prompt asking if they'd like us to find affordable lawyers now.`
+    ).then((response) => {
+      // Replace loading indicator with actual response
+      setChatMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        return [...withoutLoading, { type: 'bot', text: response }];
+      });
+
+      // Re-enable quick replies for easy follow-up actions
+      setTimeout(() => setShowQuickReplies(true), 300);
+    }).catch((error) => {
+      console.error('askFollowUpQuestion error:', error);
+      setChatMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        return [
+          ...withoutLoading,
+          {
+            type: 'bot',
+            text: "Sorry, I couldn't fetch detailed follow-up right now. Meanwhile, you can try searching for lawyers or ask me what documents to prepare."
+          }
+        ];
+      });
+      setShowQuickReplies(true);
+    });
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm sticky top-0 z-40">

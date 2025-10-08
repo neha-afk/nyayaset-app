@@ -642,6 +642,8 @@ const NyayaSetu = () => {
     setLawyerData({ ...lawyerData, [field]: file });
   };
 
+  
+
   const handleExpertiseToggle = (caseType: string) => {
     const current = lawyerData.expertise;
     if (current.includes(caseType)) {
@@ -690,7 +692,7 @@ const NyayaSetu = () => {
             <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-3">
               Nyaya Setu
             </h1>
-            <p className="text-gray-600 text-xl">Connect with Justice</p>
+            <p className="text-gray-600 text-xl">Connecting Minds, Building Justice.</p>
           </div>
         </div>
       </div>
