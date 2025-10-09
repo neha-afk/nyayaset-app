@@ -2628,6 +2628,802 @@ const NyayaSetuDashboard = () => {
       )}
 
       {/* Your existing calculators and case tracker modals remain exactly the same */}
+      {/* Success Calculator Modal */}
+{showSuccessCalculator && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
+      {/* Header - Royal Blue & Gold */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-yellow-500/10"></div>
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
+            <Scale size={24} className="text-blue-900" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-white">Case Success Probability Calculator</h3>
+            <p className="text-amber-200">Estimate your case success chances</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setShowSuccessCalculator(false);
+            setProbabilityResult(null);
+          }}
+          className="p-2 hover:bg-white/20 rounded-full transition-colors relative z-10"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="p-6 overflow-y-auto max-h-[70vh] bg-gradient-to-b from-blue-50/30 to-white">
+        {!probabilityResult ? (
+          <div className="space-y-6">
+            {/* Disclaimer */}
+            <div className="bg-gradient-to-r from-blue-50 to-amber-50 border-l-4 border-blue-800 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-blue-900 mb-2">
+                <AlertCircle size={18} className="text-amber-600" />
+                <span className="font-semibold">Disclaimer</span>
+              </div>
+              <p className="text-blue-800 text-sm">
+                This is an AI-powered estimate based on similar cases. Actual outcomes may vary. 
+                Always consult with a qualified lawyer for professional legal advice.
+              </p>
+            </div>
+
+            {/* Case Type */}
+            <div>
+              <label className="block text-sm font-bold text-blue-900 mb-2 flex items-center gap-2">
+                <span className="text-amber-600">⚖️</span>
+                Case Type *
+              </label>
+              <select 
+                value={caseDetails.caseType}
+                onChange={(e) => setCaseDetails({...caseDetails, caseType: e.target.value})}
+                className="w-full border-2 border-blue-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all bg-white shadow-sm"
+              >
+                <option value="">Select your case type</option>
+                <option value="property">🏠 Property Dispute</option>
+                <option value="family">👨‍👩‍👧 Family Matter (Divorce/Custody)</option>
+                <option value="criminal">⚖️ Criminal Case</option>
+                <option value="consumer">🛒 Consumer Complaint</option>
+                <option value="business">💼 Business/Contract Dispute</option>
+                <option value="civil">📋 Civil Suit</option>
+                <option value="labor">💰 Labor/Employment Issue</option>
+                <option value="cyber">💻 Cyber Crime</option>
+              </select>
+            </div>
+
+            {/* Evidence Strength */}
+            <div>
+              <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-amber-600">📊</span>
+                Strength of Evidence
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['weak', 'medium', 'strong'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCaseDetails({...caseDetails, evidenceStrength: level})}
+                    className={`p-4 border-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 shadow-sm ${
+                      caseDetails.evidenceStrength === level
+                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50 text-blue-900 shadow-md'
+                        : 'border-blue-200 text-gray-700 hover:border-amber-300 bg-white'
+                    }`}
+                  >
+                    {level === 'weak' ? '🔴 Weak' : level === 'medium' ? '🟡 Medium' : '🟢 Strong'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Witness Support */}
+            <div>
+              <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-amber-600">👥</span>
+                Witness Support
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['none', 'medium', 'strong'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCaseDetails({...caseDetails, witnessSupport: level})}
+                    className={`p-4 border-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 shadow-sm ${
+                      caseDetails.witnessSupport === level
+                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50 text-blue-900 shadow-md'
+                        : 'border-blue-200 text-gray-700 hover:border-amber-300 bg-white'
+                    }`}
+                  >
+                    {level === 'none' ? '❌ None' : level === 'medium' ? '🟡 Some' : '🟢 Strong'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Documentation */}
+            <div>
+              <label className="block text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-amber-600">📄</span>
+                Documentation Quality
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['poor', 'medium', 'complete'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCaseDetails({...caseDetails, documentation: level})}
+                    className={`p-4 border-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 shadow-sm ${
+                      caseDetails.documentation === level
+                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50 text-blue-900 shadow-md'
+                        : 'border-blue-200 text-gray-700 hover:border-amber-300 bg-white'
+                    }`}
+                  >
+                    {level === 'poor' ? '❌ Poor' : level === 'medium' ? '🟡 Partial' : '🟢 Complete'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Calculate Button */}
+            <button
+              onClick={calculateProbability}
+              disabled={!caseDetails.caseType}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 ${
+                caseDetails.caseType
+                  ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white hover:from-blue-800 hover:to-blue-700 shadow-lg hover:shadow-xl'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <span className="flex items-center justify-center gap-2">
+                <Calculator size={20} />
+                Calculate Success Probability
+              </span>
+            </button>
+          </div>
+        ) : (
+          /* Enhanced Results Display */
+          <div className="space-y-6">
+            {/* Main Probability Result */}
+            <div className="text-center bg-gradient-to-br from-blue-50 to-amber-50 rounded-2xl p-6 border-2 border-amber-400 shadow-lg">
+              <div className="w-36 h-36 mx-auto mb-4 relative">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-100 to-amber-100 flex items-center justify-center shadow-inner">
+                  <div 
+                    className="absolute inset-4 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg"
+                    style={{
+                      background: `conic-gradient(
+                        #f59e0b 0% ${probabilityResult}%, 
+                        #1e40af ${probabilityResult}% 100%
+                      )`
+                    }}
+                  >
+                    <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-xl">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-blue-900 to-amber-600 bg-clip-text text-transparent">{probabilityResult}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-blue-900 mb-2">Success Probability</h3>
+              <p className="text-blue-800">
+                Based on your inputs, your case has a <strong className="text-amber-700">{probabilityResult}%</strong> chance of success
+              </p>
+            </div>
+
+            {/* Action Plan */}
+            <div className="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-300 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">
+                  <Clock size={18} className="text-blue-900" />
+                </div>
+                📋 Recommended Action Plan
+              </h4>
+              <div className="space-y-4 text-sm">
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">1</div>
+                  <div className="text-blue-900">
+                    <strong className="text-blue-900 block mb-1">Immediate (1-7 days):</strong>
+                    <ul className="space-y-1 text-blue-800">
+                      <li>• Gather all relevant documents and evidence</li>
+                      <li>• Consult with a specialized lawyer</li>
+                      <li>• Preserve any digital evidence</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-full flex items-center justify-center text-blue-900 text-xs font-bold flex-shrink-0">2</div>
+                  <div className="text-blue-900">
+                    <strong className="text-blue-900 block mb-1">Short-term (1-4 weeks):</strong>
+                    <ul className="space-y-1 text-blue-800">
+                      <li>• Complete missing documentation</li>
+                      <li>• Identify and contact potential witnesses</li>
+                      <li>• File necessary legal notices</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">3</div>
+                  <div className="text-blue-900">
+                    <strong className="text-blue-900 block mb-1">Long-term (1-6 months):</strong>
+                    <ul className="space-y-1 text-blue-800">
+                      <li>• Prepare for court hearings</li>
+                      <li>• Explore settlement options</li>
+                      <li>• Build comprehensive case strategy</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Similar Cases Analysis */}
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-900 to-blue-800 rounded-lg flex items-center justify-center">
+                  <FileText size={18} className="text-amber-400" />
+                </div>
+                📊 Similar Cases Analysis
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center bg-white rounded-lg p-3 border border-amber-200">
+                  <span className="text-blue-900 font-medium">Similar {caseDetails.caseType} cases:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-blue-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-blue-900 to-amber-600 h-2.5 rounded-full" 
+                        style={{ width: `${getSimilarCaseRate()}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-blue-900 min-w-[60px] text-right">{getSimilarCaseRate()}%</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center bg-white rounded-lg p-3 border border-amber-200">
+                  <span className="text-blue-900 font-medium">With your evidence level:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-blue-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-blue-900 to-amber-600 h-2.5 rounded-full" 
+                        style={{ width: `${getEvidenceBasedRate()}%` }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-blue-900 min-w-[60px] text-right">{getEvidenceBasedRate()}%</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center bg-white rounded-lg p-3 border border-amber-200">
+                  <span className="text-blue-900 font-medium">Proper documentation:</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 bg-blue-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-blue-900 to-amber-600 h-2.5 rounded-full" 
+                        style={{ width: '78%' }}
+                      ></div>
+                    </div>
+                    <span className="font-bold text-blue-900 min-w-[60px] text-right">78%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cost-Benefit Analysis */}
+            <div className="bg-gradient-to-br from-blue-900 to-blue-800 border-2 border-amber-400 rounded-xl p-5 shadow-lg text-white">
+              <h4 className="font-bold mb-4 flex items-center gap-2 text-lg">
+                <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-lg flex items-center justify-center">
+                  <Calculator size={18} className="text-blue-900" />
+                </div>
+                💰 Cost-Benefit Insight
+              </h4>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <span>Estimated legal costs:</span>
+                  <span className="font-bold text-amber-300">{getEstimatedCosts()}</span>
+                </div>
+                <div className="flex justify-between bg-white/10 rounded-lg p-3 backdrop-blur-sm">
+                  <span>Potential recovery/value:</span>
+                  <span className="font-bold text-amber-300">{getPotentialRecovery()}</span>
+                </div>
+                <div className="border-t-2 border-amber-400 pt-3 mt-3">
+                  <div className="flex justify-between font-bold text-lg bg-amber-400 text-blue-900 rounded-lg p-3">
+                    <span>Net expected value:</span>
+                    <span>{getNetValue()}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-amber-200 mt-2">
+                  *Based on {probabilityResult}% success probability and typical case outcomes
+                </p>
+              </div>
+            </div>
+
+            {/* Improvement Suggestions */}
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <span className="text-2xl">📈</span>
+                Improvement Suggestions
+              </h4>
+              <ul className="text-left text-blue-900 text-sm space-y-2">
+                {probabilityResult < 50 && (
+                  <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                    <span className="text-amber-600 flex-shrink-0">✓</span>
+                    <span><strong>Gather stronger evidence</strong> - This could increase success by 20-30%</span>
+                  </li>
+                )}
+                {caseDetails.witnessSupport === 'none' && (
+                  <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                    <span className="text-amber-600 flex-shrink-0">✓</span>
+                    <span><strong>Find supporting witnesses</strong> - Critical for case credibility</span>
+                  </li>
+                )}
+                {caseDetails.documentation === 'poor' && (
+                  <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                    <span className="text-amber-600 flex-shrink-0">✓</span>
+                    <span><strong>Complete your documentation</strong> - Proper paperwork increases success rate</span>
+                  </li>
+                )}
+                <li className="flex items-start gap-2 bg-white rounded-lg p-2 border border-yellow-300">
+                  <span className="text-amber-600 flex-shrink-0">✓</span>
+                  <span><strong>Consult with specialized lawyer</strong> - Expert guidance can significantly improve outcomes</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
+              <button
+                onClick={() => setProbabilityResult(null)}
+                className="border-2 border-blue-900 text-blue-900 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-md"
+              >
+                <FileText size={16} />
+                Save Analysis
+              </button>
+              <button
+                onClick={() => {
+                  setShowSuccessCalculator(false);
+                  setProbabilityResult(null);
+                  setTimeout(() => askFollowUpQuestion(caseDetails.caseType), 500);
+                }}
+                className="bg-gradient-to-r from-amber-500 to-yellow-500 text-blue-900 py-3 rounded-xl font-bold hover:from-amber-600 hover:to-yellow-600 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+              >
+                <User size={16} />
+                Find Lawyers
+              </button>
+              <button
+                onClick={() => {
+                  setShowSuccessCalculator(false);
+                  setProbabilityResult(null);
+                  navigate('/legalforms');
+                }}
+                className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-3 rounded-xl font-bold hover:from-blue-800 hover:to-blue-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+              >
+                <FileText size={16} />
+                Get Documents
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Cost Predictor Modal */}
+{showCostPredictor && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-yellow-500 rounded-lg shadow-lg">
+            <Calculator size={24} className="text-blue-900" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold tracking-wide">Legal Cost Predictor</h3>
+            <p className="text-yellow-200 text-sm">Estimate your legal expenses with precision</p>
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            setShowCostPredictor(false);
+            setCostEstimate(null);
+          }}
+          className="p-2 hover:bg-blue-700 rounded-full transition-all hover:rotate-90 duration-300"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="p-6 overflow-y-auto max-h-[70vh]">
+        {!costEstimate ? (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-50 via-yellow-50 to-blue-50 border-l-4 border-yellow-500 rounded-xl p-4 shadow-md">
+              <div className="flex items-center gap-2 text-blue-900 mb-2">
+                <AlertCircle size={18} className="text-yellow-600" />
+                <span className="font-bold">Important Disclaimer</span>
+              </div>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                This is an estimate based on average legal costs. Actual fees may vary based on lawyer experience, case complexity, and location.
+              </p>
+            </div>
+
+            {/* Case Type */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Case Type *
+              </label>
+              <select 
+                value={costDetails.caseType}
+                onChange={(e) => setCostDetails({...costDetails, caseType: e.target.value})}
+                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-blue-900 transition-all shadow-sm hover:border-blue-800"
+              >
+                <option value="">Select your case type</option>
+                <option value="property">Property Dispute</option>
+                <option value="family">Family Matter (Divorce/Custody)</option>
+                <option value="criminal">Criminal Case</option>
+                <option value="consumer">Consumer Complaint</option>
+                <option value="business">Business/Contract Dispute</option>
+                <option value="civil">Civil Suit</option>
+                <option value="labor">Labor/Employment Issue</option>
+                <option value="cyber">Cyber Crime</option>
+              </select>
+            </div>
+
+            {/* Complexity Level */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Case Complexity
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {['simple', 'medium', 'complex'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setCostDetails({...costDetails, complexity: level})}
+                    className={`p-3 border-2 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md ${
+                      costDetails.complexity === level
+                        ? 'border-yellow-500 bg-gradient-to-br from-blue-900 to-blue-800 text-white shadow-lg transform scale-105'
+                        : 'border-gray-300 text-gray-700 hover:border-yellow-400 hover:bg-yellow-50'
+                    }`}
+                  >
+                    {level === 'simple' ? '🔴 Simple' : level === 'medium' ? '🟡 Medium' : '🟢 Complex'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Location
+              </label>
+              <select 
+                value={costDetails.location}
+                onChange={(e) => setCostDetails({...costDetails, location: e.target.value})}
+                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-blue-900 transition-all shadow-sm hover:border-blue-800"
+              >
+                <option value="metro">Metro City (Delhi, Mumbai, Bangalore)</option>
+                <option value="tier2">Tier 2 City</option>
+                <option value="tier3">Tier 3 City</option>
+                <option value="rural">Rural Area</option>
+              </select>
+            </div>
+
+            {/* Lawyer Experience */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Preferred Lawyer Experience
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'Junior (1-3 years)', value: 'junior' },
+                  { label: 'Mid-level (4-7 years)', value: 'mid' },
+                  { label: 'Senior (8-15 years)', value: 'senior' },
+                  { label: 'Expert (15+ years)', value: 'expert' }
+                ].map((level) => (
+                  <button
+                    key={level.value}
+                    onClick={() => setCostDetails({...costDetails, lawyerExperience: level.value})}
+                    className={`p-3 border-2 rounded-xl text-sm font-semibold transition-all text-left shadow-sm hover:shadow-md ${
+                      costDetails.lawyerExperience === level.value
+                        ? 'border-yellow-500 bg-gradient-to-br from-blue-900 to-blue-800 text-white shadow-lg transform scale-105'
+                        : 'border-gray-300 text-gray-700 hover:border-yellow-400 hover:bg-yellow-50'
+                    }`}
+                  >
+                    {level.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Court Level */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Court Level
+              </label>
+              <select 
+                value={costDetails.courtLevel}
+                onChange={(e) => setCostDetails({...costDetails, courtLevel: e.target.value})}
+                className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-blue-900 transition-all shadow-sm hover:border-blue-800"
+              >
+                <option value="district">District Court</option>
+                <option value="high">High Court</option>
+                <option value="supreme">Supreme Court</option>
+                <option value="tribunal">Tribunal</option>
+              </select>
+            </div>
+
+            {/* Calculate Button */}
+            <button
+              onClick={calculateCostEstimate}
+              disabled={!costDetails.caseType}
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg ${
+                costDetails.caseType
+                  ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white hover:from-blue-800 hover:to-blue-700 hover:shadow-2xl transform hover:scale-105 border-2 border-yellow-500'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Calculate Estimated Costs
+            </button>
+          </div>
+        ) : (
+          /* Results Display */
+          <div className="space-y-6">
+            {/* Main Cost Estimate */}
+            <div className="text-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 rounded-2xl p-8 border-4 border-yellow-500 shadow-2xl">
+              <h3 className="text-2xl font-bold text-yellow-400 mb-3 tracking-wide">Estimated Legal Costs</h3>
+              <div className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
+                ₹{costEstimate.min.toLocaleString()} - ₹{costEstimate.max.toLocaleString()}
+              </div>
+              <p className="text-yellow-200 font-medium">Total estimated range for your case</p>
+            </div>
+
+            {/* Cost Breakdown */}
+            <div className="bg-gradient-to-r from-blue-50 to-yellow-50 border-2 border-blue-900 rounded-xl p-6 shadow-lg">
+              <h4 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                <FileText size={20} className="text-yellow-600" />
+                Cost Breakdown
+              </h4>
+              <div className="space-y-4">
+                {costEstimate.breakdown.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center pb-3 border-b border-blue-200 last:border-0">
+                    <span className="text-gray-800 font-medium">{item.category}</span>
+                    <span className="font-bold text-blue-900 text-lg">₹{item.amount.toLocaleString()}</span>
+                  </div>
+                ))}
+                <div className="border-t-2 border-yellow-500 pt-4 mt-3">
+                  <div className="flex justify-between font-bold text-blue-900 text-xl">
+                    <span>Total Estimated Range</span>
+                    <span className="text-yellow-600">₹{costEstimate.min.toLocaleString()} - ₹{costEstimate.max.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cost Saving Tips */}
+            <div className="bg-gradient-to-r from-green-50 to-yellow-50 border-l-4 border-yellow-500 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
+                <Zap size={20} className="text-yellow-600" />
+                💡 Cost Saving Tips
+              </h4>
+              <ul className="text-gray-800 text-sm space-y-2 leading-relaxed">
+                <li>• <strong className="text-blue-900">Opt for fixed fees</strong> instead of hourly rates for predictable costs</li>
+                <li>• <strong className="text-blue-900">Prepare documents in advance</strong> to reduce lawyer preparation time</li>
+                <li>• <strong className="text-blue-900">Consider mediation</strong> which is often cheaper than litigation</li>
+                <li>• <strong className="text-blue-900">Bundle multiple legal matters</strong> for package discounts</li>
+              </ul>
+            </div>
+
+            {/* Next Steps */}
+            <div className="bg-gradient-to-r from-blue-50 to-yellow-50 border-l-4 border-blue-900 rounded-xl p-5 shadow-md">
+              <h4 className="font-bold text-blue-900 mb-3 flex items-center gap-2 text-lg">
+                <ArrowRight size={20} className="text-yellow-600" />
+                Next Steps
+              </h4>
+              <div className="text-gray-800 text-sm space-y-2 leading-relaxed">
+                <p><strong className="text-blue-900">Get exact quotes:</strong> Contact 2-3 lawyers for precise pricing</p>
+                <p><strong className="text-blue-900">Payment plans:</strong> Many lawyers offer EMI options</p>
+                <p><strong className="text-blue-900">Legal aid:</strong> Check if you qualify for free legal assistance</p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
+                onClick={() => setCostEstimate(null)}
+                className="border-2 border-blue-900 text-blue-900 py-3 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-md hover:shadow-lg"
+              >
+                Recalculate
+              </button>
+              <button
+                onClick={() => {
+                  setShowCostPredictor(false);
+                  setCostEstimate(null);
+                  setTimeout(() => askFollowUpQuestion(costDetails.caseType), 500);
+                }}
+                className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-3 rounded-xl font-bold hover:from-blue-800 hover:to-blue-700 transition-all shadow-lg hover:shadow-2xl border-2 border-yellow-500 transform hover:scale-105"
+              >
+                Find Affordable Lawyers
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Case Tracker Modal */}
+{showCaseTracker && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-yellow-500 rounded-lg shadow-lg">
+            <FileText size={24} className="text-blue-900" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold tracking-wide">Case Status Tracker</h3>
+            <p className="text-yellow-200 text-sm">Monitor your legal cases in real-time</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowCaseTracker(false)}
+          className="p-2 hover:bg-blue-700 rounded-full transition-all hover:rotate-90 duration-300"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      {/* Cases List */}
+      <div className="p-6 overflow-y-auto max-h-[70vh] bg-gradient-to-br from-gray-50 to-blue-50">
+        {activeCases.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="bg-gradient-to-br from-blue-100 to-yellow-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <FileText className="text-blue-900" size={48} />
+            </div>
+            <h3 className="text-lg font-bold text-blue-900 mb-2">No Active Cases</h3>
+            <p className="text-gray-600">Start a consultation to track your case progress</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {activeCases.map((caseItem) => (
+              <div key={caseItem.id} className="border-2 border-blue-200 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 bg-white hover:border-yellow-500 transform hover:-translate-y-1">
+                {/* Case Header */}
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <h4 className="font-bold text-blue-900 text-xl mb-1">{caseItem.title}</h4>
+                    <p className="text-gray-700 font-medium flex items-center gap-2">
+                      <span className="text-yellow-600">⚖️</span>
+                      Lawyer: {caseItem.lawyer}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-4 py-2 rounded-full text-sm font-bold shadow-md ${
+                      caseItem.status === 'resolved' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
+                      caseItem.status === 'case_in_progress' ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white' :
+                      caseItem.status === 'documents_submitted' ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white' :
+                      'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                    }`}>
+                      {caseItem.statusText}
+                    </span>
+                    <p className="text-sm text-gray-500 mt-2 font-semibold">Case ID: #{caseItem.id}</p>
+                  </div>
+                </div>
+
+                {/* Enhanced Dynamic Progress Bar */}
+                <div className="mb-6">
+                  <div className="flex justify-between text-sm font-bold text-gray-700 mb-3">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                      Progress Status
+                    </span>
+                    <span className="text-blue-900 text-lg">{caseItem.progress}%</span>
+                  </div>
+                  <div className="relative w-full bg-gradient-to-r from-gray-200 to-gray-300 rounded-full h-4 overflow-hidden shadow-inner">
+                    {/* Animated gradient progress */}
+                    <div 
+                      className="h-4 rounded-full transition-all duration-1000 ease-out relative overflow-hidden shadow-lg"
+                      style={{ 
+                        width: `${caseItem.progress}%`,
+                        background: `linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #eab308 100%)`
+                      }}
+                    >
+                      {/* Shine effect - animated with CSS */}
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
+                        style={{
+                          animation: 'shimmer 2s infinite',
+                        }}
+                      ></div>
+                    </div>
+                    {/* Percentage markers */}
+                    <div className="absolute inset-0 flex justify-between px-1 items-center pointer-events-none">
+                      {[25, 50, 75].map(mark => (
+                        <div key={mark} className="w-0.5 h-2 bg-white/50 rounded"></div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Progress milestones */}
+                  <div className="flex justify-between text-xs text-gray-500 mt-2 font-medium">
+                    <span>Filed</span>
+                    <span>In Progress</span>
+                    <span>Near Completion</span>
+                    <span>Resolved</span>
+                  </div>
+                </div>
+
+                {/* Timeline */}
+                <div className="border-t-2 border-blue-100 pt-5">
+                  <h5 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg">
+                    <span className="w-1 h-6 bg-yellow-500 rounded"></span>
+                    Case Timeline
+                  </h5>
+                  <div className="space-y-4">
+                    {caseItem.timeline.map((stage, index) => (
+                      <div key={index} className="flex items-start gap-4 relative">
+                        {/* Connecting line */}
+                        {index < caseItem.timeline.length - 1 && (
+                          <div className={`absolute left-3 top-8 w-0.5 h-full ${
+                            stage.completed ? 'bg-gradient-to-b from-yellow-500 to-blue-900' : 'bg-gray-300'
+                          }`}></div>
+                        )}
+                        
+                        {/* Stage indicator */}
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm shadow-lg relative z-10 transition-all duration-300 ${
+                          stage.completed 
+                            ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white ring-4 ring-yellow-200 scale-110' 
+                            : 'bg-gradient-to-br from-gray-300 to-gray-400 text-gray-700'
+                        }`}>
+                          {stage.completed ? '✓' : index + 1}
+                        </div>
+                        
+                        <div className="flex-1 pb-2">
+                          <span className={`font-bold text-base block ${
+                            stage.completed ? 'text-blue-900' : 'text-gray-600'
+                          }`}>
+                            {stage.stage}
+                          </span>
+                          {stage.date && (
+                            <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                              <Clock size={14} className="text-yellow-600" />
+                              Completed: {stage.date}
+                            </p>
+                          )}
+                          {!stage.completed && index === caseItem.timeline.findIndex(s => !s.completed) && (
+                            <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                              Current Stage
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Next Steps */}
+                <div className="mt-5 p-4 bg-gradient-to-r from-blue-50 via-yellow-50 to-blue-50 rounded-xl border-l-4 border-yellow-500 shadow-md">
+                  <div className="flex items-center gap-2 text-blue-900 mb-2">
+                    <Clock size={18} className="text-yellow-600" />
+                    <span className="font-bold text-base">Next Hearing: {caseItem.nextHearing}</span>
+                  </div>
+                  <p className="text-sm text-gray-700 font-medium">Last updated: {caseItem.lastUpdate}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="border-t-2 border-blue-200 p-5 bg-gradient-to-r from-gray-50 to-blue-50 flex justify-between items-center shadow-inner">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+          <span className="text-sm font-bold text-blue-900">
+            {activeCases.length} active case{activeCases.length !== 1 ? 's' : ''} in progress
+          </span>
+        </div>
+        <button
+          onClick={() => setShowCaseTracker(false)}
+          className="px-6 py-3 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold hover:from-blue-800 hover:to-blue-700 transition-all shadow-lg hover:shadow-2xl border-2 border-yellow-500 transform hover:scale-105"
+        >
+          Close Tracker
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {/* I've kept all your original calculator and case tracker code intact */}
 
     </div>
