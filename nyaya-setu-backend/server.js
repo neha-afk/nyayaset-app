@@ -48,6 +48,49 @@ app.post('/api/chat', async (req, res) => {
         error: 'OpenRouter API key not configured',
         message: 'Please set OPENROUTER_API_KEY in your .env file'
       });
+      //// 🆕 ADD THIS NEW ENDPOINT RIGHT AFTER YOUR CHAT ENDPOINT
+app.post('/api/lawyers/match', async (req, res) => {
+  try {
+    const { category, specializations, location, budget } = req.body;
+    
+    console.log('🔍 Matching lawyers for:', { category, specializations });
+    
+    // Import your lawyers database (adjust path as needed)
+    const lawyersDatabase = require('./backend/data/lawyers.json');
+    
+    // Filter lawyers based on specializations
+    const matchedLawyers = lawyersDatabase.filter(lawyer => {
+      const hasSpecialization = lawyer.specializations.some(spec => 
+        specializations.some(reqSpec => 
+          spec.primary.toLowerCase().includes(reqSpec.toLowerCase()) ||
+          (spec.subCategories && spec.subCategories.some(sub => 
+            sub.toLowerCase().includes(reqSpec.toLowerCase())
+          ))
+        )
+      );
+      
+      return hasSpecialization;
+    })
+    .sort((a, b) => b.rating - a.rating) // Sort by rating
+    .slice(0, 4); // Return top 4 matches
+
+    console.log(`✅ Found ${matchedLawyers.length} lawyers`);
+
+    res.json({
+      success: true,
+      lawyers: matchedLawyers,
+      count: matchedLawyers.length
+    });
+    
+  } catch (error) {
+    console.error('❌ Error matching lawyers:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to match lawyers' 
+    });
+  }
+});
+
     }
 
     // Get or create conversation history
