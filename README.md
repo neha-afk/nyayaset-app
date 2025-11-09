@@ -1,46 +1,76 @@
-# Getting Started with Create React App
+# 🌉 Nyaya Setu - Legal Assistance Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Nyaya Setu is a comprehensive legal assistance platform designed to **bridge the justice gap** by connecting citizens with legal professionals, offering **AI-powered legal guidance**, and streamlining access to justice through technology.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🌟 Features
 
-### `npm start`
+### 🤖 AI Legal Assistant (Nyaya Mitra)
+- Natural Language Processing for legal queries  
+- Case Analysis and precedent matching  
+- Document Review and legal advice  
+- Multi-language Support (Hindi/English)  
+- Real-time Chat Interface  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 👥 Lawyer Dashboard
+- Case Management System  
+- Client Communication Portal  
+- Document Repository  
+- Appointment Scheduling  
+- Billing and Payment Integration  
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 📱 JurisConnect Social Platform
+- Legal Professional Networking  
+- Case Studies & Success Stories  
+- Knowledge Sharing Community  
+- Real-time Updates & Notifications  
+- Video/Image Content Sharing  
 
-### `npm test`
+### 🏛️ Citizen Portal
+- Legal Aid Application  
+- Lawyer Discovery & Booking  
+- Case Status Tracking  
+- Legal Document Templates  
+- Educational Resources  
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🚀 Quick Start
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
+Ensure the following are installed:
+- [Node.js](https://nodejs.org/) v16+  
+- npm or yarn  
+- [MongoDB](https://www.mongodb.com/)  
+- [Python](https://www.python.org/) 3.8+ (for AI services)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Frontend**
+React.js - UI Framework
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+TypeScript - Type Safety
 
-### `npm run eject`
+Tailwind CSS - Styling
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+React Router - Navigation
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**Backend**
+Node.js - Runtime Environment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Express.js - Web Framework
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Installation
 
-## Learn More
+# Clone the repository
+git clone https://github.com/your-username/nyaya-setu.git
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Navigate into the project directory
+cd nyaya-setu
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Install dependencies
+npm install
+
+# Run the application
+npm start
+
+
