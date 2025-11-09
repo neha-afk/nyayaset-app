@@ -1,4 +1,4 @@
-# 🌉 Nyaya Setu - Legal Assistance Platform
+# Nyaya Setu - Legal Assistance Platform
 
 Nyaya Setu is a comprehensive legal assistance platform designed to **bridge the justice gap** by connecting citizens with legal professionals, offering **AI-powered legal guidance**, and streamlining access to justice through technology.
 
